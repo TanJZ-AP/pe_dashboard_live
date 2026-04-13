@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PizzaExpress Singapore — Weekly Dashboard · 6–12 Apr 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a18; font-size: 13px; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+  /* Header */
+  .hdr { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #e0dfd8; margin-bottom: 16px; }
+  .hdr-l { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 32px; height: 32px; border-radius: 50%; background: #C41230; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+  .hdr-title { font-size: 15px; font-weight: 600; color: #1a1a18; }
+  .hdr-sub { font-size: 11px; color: #5f5e5a; margin-top: 2px; }
+  .hdr-r { text-align: right; font-size: 10px; color: #5f5e5a; line-height: 1.7; }
+  .live { display: inline-block; background: #eaf3de; color: #27500a; font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 1px solid #d3d1c7; margin-bottom: 16px; overflow-x: auto; gap: 0; }
+  .tab { padding: 7px 14px; font-size: 11px; color: #888780; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color .15s, border-color .15s; }
+  .tab.on { color: #C41230; border-bottom: 2px solid #C41230; font-weight: 600; }
+  .tab:hover:not(.on) { color: #1a1a18; }
+  .pane { display: none; }
+  .pane.on { display: block; }
+
+  /* Section label */
+  .sec { font-size: 10px; font-weight: 600; color: #888780; text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 6px; }
+  .sec:first-child { margin-top: 0; }
+
+  /* KPI grid */
+  .kg { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kc { background: #fff; border: 1px solid #e0dfd8; border-radius: 8px; padding: 10px 14px; }
+  .kl { font-size: 10px; color: #888780; margin-bottom: 4px; }
+  .kv { font-size: 20px; font-weight: 600; color: #1a1a18; }
+  .ks { font-size: 10px; color: #888780; margin-top: 3px; }
+  .ku { color: #3b6d11; } .kd { color: #a32d2d; }
+
+  /* Tables */
+  table.t { width: 100%; border-collapse: collapse; font-size: 11px; }
+  table.t th { text-align: left; padding: 6px 8px; background: #f1efe8; color: #5f5e5a; font-weight: 600; border-bottom: 1px solid #d3d1c7; white-space: nowrap; }
+  table.t td { padding: 6px 8px; border-bottom: 1px solid #eae9e3; color: #1a1a18; white-space: nowrap; }
+  table.t td:not(:first-child):not(:nth-child(2)) { text-align: right; }
+  table.t th:not(:first-child):not(:nth-child(2)) { text-align: right; }
+  table.t tr:last-child td { border-bottom: none; }
+  table.t .tot td { font-weight: 600; background: #f1efe8; }
+  .dg { color: #185fa5; } .sv { color: #3b6d11; }
+  .na { color: #b4b2a9; }
+  .pos { color: #3b6d11; font-weight: 600; } .neg { color: #a32d2d; font-weight: 600; }
+  .est { color: #888780; font-style: italic; }
+  .fri { background: rgba(24,95,165,.04); }
+  .sat { background: rgba(186,117,23,.03); }
+  .sun { background: rgba(196,18,48,.03); }
+  .gf { color: #ba7517; font-weight: 600; }
+
+  /* Highlights */
+  .hl-list { list-style: none; margin-top: 8px; }
+  .hl-list li { padding: 8px 12px; border-left: 3px solid #C41230; margin-bottom: 8px; background: #fff; border-radius: 0 8px 8px 0; font-size: 11px; color: #5f5e5a; line-height: 1.65; border: 1px solid #e0dfd8; border-left: 3px solid #C41230; }
+  .hl-list li strong { color: #1a1a18; }
+  .sc-note { font-size: 10px; color: #5f5e5a; padding: 7px 10px; background: #f1efe8; border-radius: 6px; margin-bottom: 14px; border: 1px solid #d3d1c7; }
+
+  /* Notice */
+  .notice { margin-top: 8px; padding: 7px 10px; background: #faeeda; border-radius: 6px; font-size: 10px; color: #633806; border-left: 3px solid #ba7517; }
+
+  /* Charts */
+  .cw { position: relative; width: 100%; }
+  .leg { display: flex; flex-wrap: wrap; gap: 12px; font-size: 10px; color: #5f5e5a; margin-bottom: 8px; }
+  .ld { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  /* Print */
+  @media print { .tabs { display: none; } .pane { display: block !important; page-break-inside: avoid; margin-bottom: 32px; } .tab-label { display: block; font-size: 13px; font-weight: 700; color: #C41230; margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .06em; } }
+  .tab-label { display: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="logo">PE</div>
+    <div>
+      <div class="hdr-title">PizzaExpress Singapore — Weekly Dashboard</div>
+      <div class="hdr-sub">This Week: 6–12 Apr 2026 · Complete (Mon–Sun all files received)</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <span class="live">Live · SharePoint</span> Condor / Project Money / POS Daily<br>
+    14 daily POS files (DG + SV, 7 days each) · Generated 13 Apr 2026
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab on"  onclick="sw('daily',this)">Daily breakdown</button>
+  <button class="tab" onclick="sw('kh',this)">Key highlights</button>
+  <button class="tab" onclick="sw('dita',this)">DI + TA vs Delivery</button>
+  <button class="tab" onclick="sw('dp',this)">Day parts</button>
+  <button class="tab" onclick="sw('turns',this)">Table turns</button>
+  <button class="tab" onclick="sw('pay',this)">Payment methods</button>
+  <button class="tab" onclick="sw('menu',this)">Top menu items</button>
+</div>
+
+<!-- ── DAILY ── -->
+<div id="pane-daily" class="pane on">
+  <div class="tab-label">Daily Breakdown</div>
+  <div class="sec">Daily revenue — This Week (6–12 Apr) vs Last Week same days (30 Mar–5 Apr)</div>
+  <table class="t">
+    <thead>
+      <tr>
+        <th>Date</th><th>Day</th>
+        <th>This Wk DG</th><th>This Wk SV</th><th>This Week</th>
+        <th>Last Week</th><th>Variance</th><th>Var %</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Mon</td><td>6 / 30 Mar</td><td class="dg">1,785.89</td><td class="sv">1,009.70</td><td><strong>3,047.17</strong></td><td>3,099.50</td><td class="neg">−52</td><td class="neg">−1.7%</td></tr>
+      <tr><td>Tue</td><td>7 / 31 Mar</td><td class="dg">1,761.57</td><td class="sv">2,063.64</td><td><strong>4,169.46</strong></td><td>4,049.89</td><td class="pos">+120</td><td class="pos">+3.0%</td></tr>
+      <tr><td>Wed</td><td>8 Apr / 1 Apr</td><td class="dg">2,296.73</td><td class="sv">2,245.37</td><td><strong>4,950.90</strong></td><td>3,839.36</td><td class="pos">+1,112</td><td class="pos">+28.9%</td></tr>
+      <tr><td>Thu</td><td>9 Apr / 2 Apr</td><td class="dg">2,198.60</td><td class="sv">2,142.75</td><td><strong>4,732.08</strong></td><td class="gf">7,122.37 ᴳᶠᵉᵛᵉ</td><td class="neg">−2,390</td><td class="neg">−33.6%</td></tr>
+      <tr class="fri"><td>Fri</td><td>10 Apr / 3 Apr</td><td class="dg">3,903.87</td><td class="sv">2,704.88</td><td><strong>7,203.55</strong></td><td class="gf">9,056.25 GF ✓</td><td class="neg">−1,853</td><td class="neg">−20.5%</td></tr>
+      <tr class="sat"><td>Sat</td><td>11 Apr / 4 Apr</td><td class="dg">4,405.88</td><td class="sv">3,742.37</td><td><strong>8,881.60</strong></td><td>7,097.67</td><td class="pos">+1,784</td><td class="pos">+25.1%</td></tr>
+      <tr class="sun"><td>Sun</td><td>12 Apr / 5 Apr</td><td class="dg">4,325.29</td><td class="sv">4,446.58</td><td><strong>9,561.33</strong></td><td class="gf">10,620.08 Easter ✓</td><td class="neg">−1,059</td><td class="neg">−10.0%</td></tr>
+      <tr class="tot"><td colspan="2">7-day total</td><td class="dg">20,678</td><td class="sv">18,355</td><td>42,546</td><td class="gf">44,885</td><td class="neg">−2,339</td><td class="neg">−5.2%</td></tr>
+    </tbody>
+  </table>
+  <div class="notice"><strong>GF = Good Friday (3 Apr)</strong> — last week's Friday was a public holiday (+$1,853 premium vs normal Fri). <strong>Easter Sunday (5 Apr)</strong> — last week's Sunday was Easter, delivering the biggest single day ($10,620 combined). This week's Sunday ($9,561) was +25% above the prior Sat. Strip out the GF+Easter premium (~$2,912) and this week's underlying trading is essentially flat week-on-week. ᴳᶠᵉᵛᵉ = Good Friday eve (Thu pre-GF rush inflated LW Thu to $7,122).</div>
+  <div class="leg" style="margin-top:16px">
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#C41230"></span>This Week</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#BA7517"></span>Last Week</span>
+  </div>
+  <div class="cw" style="height:220px"><canvas id="ch-d" role="img" aria-label="Grouped bar chart this week vs last week daily revenue Mon to Sun"></canvas></div>
+</div>
+
+<!-- ── KEY HIGHLIGHTS ── -->
+<div id="pane-kh" class="pane">
+  <div class="tab-label">Key Highlights</div>
+  <div class="sc-note">DI and TA figures below are <strong>net sales</strong> (excluding service charge). SC of <strong>$2,148</strong> and tax of <strong>$3,514</strong> collected separately — total revenue incl. these is $42,546.</div>
+  <div class="kg">
+    <div class="kc"><div class="kl">Total revenue (7 days)</div><div class="kv">$42,546</div><div class="ks">incl. SC $2,148 + tax $3,514</div></div>
+    <div class="kc"><div class="kl">DI net sales</div><div class="kv">$21,721</div><div class="ks ku">58.9% · excl. SC</div></div>
+    <div class="kc"><div class="kl">TA net sales</div><div class="kv">$15,164</div><div class="ks">41.1% · excl. SC</div></div>
+    <div class="kc"><div class="kl">Delivery revenue</div><div class="kv">$13,690</div><div class="ks">Grab + FP + Oddle (net)</div></div>
+    <div class="kc"><div class="kl">OTC / direct TA</div><div class="kv">$1,474</div><div class="ks">self-collection + walk-in TA</div></div>
+    <div class="kc"><div class="kl">Total discounts</div><div class="kv">$2,277</div><div class="ks kd">6.2% of net sales</div></div>
+  </div>
+  <div class="sec">5 key takeaways — week of 6–12 Apr 2026</div>
+  <ul class="hl-list">
+    <li><strong>The −5.2% gap vs last week is entirely explained by two holiday days, not underlying weakness.</strong> Strip out the Good Friday premium (LW Fri $9,056 vs this Fri $7,204 = +$1,853) and the Easter Sunday premium (LW Sun $10,620 vs this Sun $9,561 = +$1,059), and those two gaps account for ~$2,912 of the $2,339 total deficit. Wed this week was +29% vs LW Wed and Sat was +25% vs LW Sat — both strong beats. The pre-Good Friday Thursday rush last week (LW Thu $7,122 vs this Thu $4,732) also inflated last week's count.</li>
+    <li><strong>DG Saturday Oddle spike of $1,563 needs investigation — potential bulk or corporate order.</strong> DG Apr 11 Oddle net was $1,563, nearly 6× its next highest day (Thu $253) and exceeded DG Grab for the same day ($755). DG tea time on that Saturday was also its highest of the week at $1,386 — pointing squarely at a single afternoon bulk order via Oddle. Confirm with DG management whether this was a one-off event booking or a corporate client to nurture for repeat business. Without this anomaly, Oddle's normal weekly run rate is closer to ~$500–700.</li>
+    <li><strong>Sunday Apr 12 was the strongest single day of the week at $9,561 combined, with SV hitting 123 DI covers (1.40× capacity).</strong> SV's 123 DI covers is the highest DI count across both outlets for any day in the past two weeks. DG Sunday also delivered $4,715 (84 covers, 0.84×). Sunday is now a consistently strong trading day; consider running pre-booking campaigns or weekend set menus to convert the walk-in overflow into confirmed reservations.</li>
+    <li><strong>Grab leads delivery at 42.5% of TA ($6,437), but FoodPanda's weekend share is growing.</strong> On Fri–Sun, FoodPanda captured $2,654 vs Grab $4,115 — a 39% FP share vs the weekday average of 19%. FoodPanda is particularly strong for SV on weekends. Oddle's weekly total of $3,593 is inflated by the Sat DG event; normalised Oddle is ~$550–600/week. Deliveroo recorded $0 for the 7th consecutive week.</li>
+    <li><strong>Saturday and Sunday are now driving 43% of weekly revenue ($18,443 of $42,546), reversing the weekday dominance.</strong> Mon–Fri contributed $24,103 (56.7%) and Sat+Sun contributed $18,443 (43.3%). Last week Mon–Fri was 62% with Sat+Sun at 38% (though LW had the GF holiday). The weekend surge is structural — both outlets are converting strong evening dining demand on weekends. Prioritise weekend staffing, upsell readiness, and kitchen throughput planning ahead of the coming weeks.</li>
+  </ul>
+</div>
+
+<!-- ── DI + TA VS DELIVERY ── -->
+<div id="pane-dita" class="pane">
+  <div class="tab-label">DI + TA vs Delivery</div>
+  <div class="sec">Daily DI vs TA split (net sales)</div>
+  <table class="t">
+    <thead><tr><th>Date</th><th>Day</th><th>DG DI</th><th>DG TA</th><th>DG DI%</th><th>SV DI</th><th>SV TA</th><th>SV DI%</th><th>Comb. DI</th><th>Comb. TA</th><th>Comb. DI%</th></tr></thead>
+    <tbody>
+      <tr><td>06-Apr</td><td>Mon</td><td class="dg">1,143.60</td><td class="dg">531.93</td><td>68.3%</td><td class="sv">684.70</td><td class="sv">256.53</td><td>72.7%</td><td>1,828.30</td><td>788.46</td><td>69.9%</td></tr>
+      <tr><td>07-Apr</td><td>Tue</td><td class="dg">905.00</td><td class="dg">766.07</td><td>54.2%</td><td class="sv">1,621.72</td><td class="sv">287.25</td><td>85.0%</td><td>2,526.72</td><td>1,053.32</td><td>70.6%</td></tr>
+      <tr><td>08-Apr</td><td>Wed</td><td class="dg">1,274.50</td><td class="dg">894.78</td><td>58.8%</td><td class="sv">1,444.45</td><td class="sv">656.47</td><td>68.8%</td><td>2,718.95</td><td>1,551.25</td><td>63.7%</td></tr>
+      <tr><td>09-Apr</td><td>Thu</td><td class="dg">1,320.01</td><td class="dg">746.59</td><td>63.9%</td><td class="sv">1,263.90</td><td class="sv">752.46</td><td>62.7%</td><td>2,583.91</td><td>1,499.05</td><td>63.3%</td></tr>
+      <tr class="fri"><td>10-Apr</td><td>Fri</td><td class="dg">2,447.20</td><td class="dg">1,212.58</td><td>66.9%</td><td class="sv">1,496.20</td><td class="sv">1,059.06</td><td>58.6%</td><td>3,943.40</td><td>2,271.64</td><td>63.4%</td></tr>
+      <tr class="sat"><td>11-Apr</td><td>Sat</td><td class="dg">1,517.10</td><td class="dg">2,737.07</td><td>35.7%</td><td class="sv">2,336.66</td><td class="sv">1,172.04</td><td>66.6%</td><td>3,853.76</td><td>3,909.11</td><td>49.7%</td></tr>
+      <tr class="sun"><td>12-Apr</td><td>Sun</td><td class="dg">2,105.60</td><td class="dg">2,014.13</td><td>51.1%</td><td class="sv">2,160.68</td><td class="sv">2,077.32</td><td>51.0%</td><td>4,266.28</td><td>4,091.45</td><td>51.0%</td></tr>
+      <tr class="tot"><td colspan="2">This week (Mon–Sun)</td><td class="dg">10,713</td><td class="dg">8,903</td><td>54.6%</td><td class="sv">11,008</td><td class="sv">6,261</td><td>63.7%</td><td>21,721</td><td>15,164</td><td>58.9%</td></tr>
+    </tbody>
+  </table>
+  <div class="notice">DG Saturday DI% collapsed to 35.7% due to the large Oddle delivery order ($1,563 net). All other days both outlets maintained 50–85% DI share. Weekend DI% (Sat+Sun avg 50.4%) is lower than weekday DI% (avg 66.1%) — delivery demand spikes on weekends.</div>
+  <div class="sec" style="margin-top:16px">Delivery platform breakdown (net sales)</div>
+  <table class="t">
+    <thead><tr><th>Date</th><th>Day</th><th>Grab</th><th>FoodPanda</th><th>Oddle</th><th>Deliveroo</th><th>OTC / Direct</th><th>Total TA</th></tr></thead>
+    <tbody>
+      <tr><td>06-Apr</td><td>Mon</td><td>242.60</td><td>206.60</td><td>93.26</td><td class="na">—</td><td>246.00</td><td>788.46</td></tr>
+      <tr><td>07-Apr</td><td>Tue</td><td>562.16</td><td>149.60</td><td>82.56</td><td class="na">—</td><td>259.00</td><td>1,053.32</td></tr>
+      <tr><td>08-Apr</td><td>Wed</td><td>752.74</td><td>410.31</td><td>158.70</td><td class="na">—</td><td>229.50</td><td>1,551.25</td></tr>
+      <tr><td>09-Apr</td><td>Thu</td><td>762.89</td><td>239.20</td><td>432.96</td><td class="na">—</td><td>64.00</td><td>1,499.05</td></tr>
+      <tr class="fri"><td>10-Apr</td><td>Fri</td><td>779.62</td><td>911.87</td><td>327.10</td><td class="na">—</td><td>253.05</td><td>2,271.64</td></tr>
+      <tr class="sat"><td>11-Apr</td><td>Sat</td><td>1,501.36</td><td>669.01</td><td>1,638.74</td><td class="na">—</td><td>100.00</td><td>3,909.11</td></tr>
+      <tr class="sun"><td>12-Apr</td><td>Sun</td><td>1,835.95</td><td>1,073.42</td><td>859.43</td><td class="na">—</td><td>322.65</td><td>4,091.45</td></tr>
+      <tr class="tot"><td colspan="2">This week total</td><td>6,437</td><td>3,660</td><td>3,593</td><td class="na">$0</td><td>1,474</td><td>15,164</td></tr>
+    </tbody>
+  </table>
+  <div class="notice">Deliveroo: $0 for all 7 days — platform appears inactive. Grab leads at 42.5% of TA ($6,437). Sat Oddle spike ($1,639) is a DG anomaly — likely a bulk/event order. FoodPanda showed strong Fri ($912) and Sun ($1,073) performance. OTC/Direct ($1,474) reflects healthy self-collection and walk-in takeaway business.</div>
+  <div class="leg" style="margin-top:16px">
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#185FA5"></span>Grab</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#C41230"></span>FoodPanda</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#3B6D11"></span>Oddle</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#BA7517"></span>OTC</span>
+  </div>
+  <div class="cw" style="height:180px"><canvas id="ch-t" role="img" aria-label="Doughnut of delivery platform split this week"></canvas></div>
+</div>
+
+<!-- ── DAY PARTS ── -->
+<div id="pane-dp" class="pane">
+  <div class="tab-label">Day Parts</div>
+  <div class="sec">Weekly day part performance (combined DG + SV, net sales)</div>
+  <table class="t">
+    <thead><tr><th>Date</th><th>Day</th><th>Lunch</th><th>Lunch%</th><th>Tea Time</th><th>Tea%</th><th>Dinner</th><th>Dinner%</th><th>Net total</th></tr></thead>
+    <tbody>
+      <tr><td>06-Apr</td><td>Mon</td><td>979.14</td><td>37.4%</td><td>384.06</td><td>14.7%</td><td>1,253.56</td><td>47.9%</td><td>2,616.76</td></tr>
+      <tr><td>07-Apr</td><td>Tue</td><td>1,553.30</td><td>43.4%</td><td>510.53</td><td>14.3%</td><td>1,516.21</td><td>42.4%</td><td>3,580.04</td></tr>
+      <tr><td>08-Apr</td><td>Wed</td><td>1,027.20</td><td>24.1%</td><td>357.39</td><td>8.4%</td><td>2,885.61</td><td>67.6%</td><td>4,270.20</td></tr>
+      <tr><td>09-Apr</td><td>Thu</td><td>1,226.81</td><td>30.0%</td><td>170.88</td><td>4.2%</td><td>2,685.27</td><td>65.8%</td><td>4,082.96</td></tr>
+      <tr class="fri"><td>10-Apr</td><td>Fri</td><td>971.30</td><td>15.6%</td><td>757.11</td><td>12.2%</td><td>4,486.63</td><td>72.2%</td><td>6,215.04</td></tr>
+      <tr class="sat"><td>11-Apr</td><td>Sat</td><td>1,929.72</td><td>24.9%</td><td>1,686.57</td><td>21.7%</td><td>4,146.58</td><td>53.4%</td><td>7,762.87</td></tr>
+      <tr class="sun"><td>12-Apr</td><td>Sun</td><td>3,123.62</td><td>37.4%</td><td>1,424.25</td><td>17.0%</td><td>3,809.86</td><td>45.6%</td><td>8,357.73</td></tr>
+      <tr class="tot"><td colspan="2">This week (Mon–Sun)</td><td>10,811.09</td><td>29.3%</td><td>5,290.79</td><td>14.3%</td><td>20,783.72</td><td>56.4%</td><td>36,885.60</td></tr>
+    </tbody>
+  </table>
+  <div class="notice">Sat tea time elevated to $1,687 (21.7%) — includes DG Oddle bulk order in afternoon slot. Weekday tea time averages only 11.0% (Mon–Fri). Sunday lunch is the strongest single lunch day at $3,124 (37.4%), driven by both outlets seeing family dining. Dinner is the dominant day-part across all 7 days at 56.4% of total net.</div>
+  <div class="leg" style="margin-top:16px">
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#185FA5"></span>Lunch</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#B8860B"></span>Tea</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#C41230"></span>Dinner</span>
+  </div>
+  <div class="cw" style="height:210px"><canvas id="ch-p" role="img" aria-label="Stacked bar chart of day parts Mon to Sun"></canvas></div>
+</div>
+
+<!-- ── TABLE TURNS ── -->
+<div id="pane-turns" class="pane">
+  <div class="tab-label">Table Turns</div>
+  <div class="sec">Table turns — DG capacity 100 · SV capacity 88</div>
+  <table class="t">
+    <thead>
+      <tr>
+        <th>Date</th><th>Day</th>
+        <th>This Wk DG Cov</th><th>This Wk DG Turns</th><th>Last Wk DG Turns</th><th>DG Δ</th>
+        <th>This Wk SV Cov</th><th>This Wk SV Turns</th><th>Last Wk SV Turns</th><th>SV Δ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Mon</td><td>6 / 30 Mar</td><td class="dg">42</td><td class="dg">0.42×</td><td>0.31× ✓</td><td class="pos">+0.11</td><td class="sv">31</td><td class="sv">0.35×</td><td>0.52× ✓</td><td class="neg">−0.17</td></tr>
+      <tr><td>Tue</td><td>7 / 31 Mar</td><td class="dg">30</td><td class="dg">0.30×</td><td>0.55× ✓</td><td class="neg">−0.25</td><td class="sv">73</td><td class="sv">0.83×</td><td>0.43× ✓</td><td class="pos">+0.40</td></tr>
+      <tr><td>Wed</td><td>8 Apr / 1 Apr</td><td class="dg">46</td><td class="dg">0.46×</td><td>0.46× ✓</td><td style="color:#888">flat</td><td class="sv">69</td><td class="sv">0.78×</td><td>0.57× ✓</td><td class="pos">+0.21</td></tr>
+      <tr><td>Thu</td><td>9 Apr / 2 Apr</td><td class="dg">70</td><td class="dg">0.70×</td><td class="gf">0.86× ✓ GFeve</td><td class="neg">−0.16</td><td class="sv">56</td><td class="sv">0.64×</td><td class="gf">1.17× ✓ GFeve</td><td class="neg">−0.53</td></tr>
+      <tr class="fri"><td>Fri</td><td>10 Apr / 3 Apr</td><td class="dg">87</td><td class="dg">0.87×</td><td class="gf">1.01× ✓ GF</td><td class="neg">−0.14</td><td class="sv">68</td><td class="sv">0.77×</td><td class="gf">1.22× ✓ GF</td><td class="neg">−0.45</td></tr>
+      <tr class="sat"><td>Sat</td><td>11 Apr / 4 Apr</td><td class="dg">66</td><td class="dg">0.66×</td><td>0.99× ✓</td><td class="neg">−0.33</td><td class="sv">107</td><td class="sv">1.22×</td><td>0.88× ✓</td><td class="pos">+0.34</td></tr>
+      <tr class="sun"><td>Sun</td><td>12 Apr / 5 Apr</td><td class="dg">84</td><td class="dg">0.84×</td><td class="gf">1.15× ✓ Estr</td><td class="neg">−0.31</td><td class="sv">123</td><td class="sv">1.40×</td><td class="gf">1.94× ✓ Estr</td><td class="neg">−0.54</td></tr>
+      <tr class="tot"><td colspan="2">7-day total / avg</td><td class="dg">505 cov</td><td class="dg">0.72× avg</td><td class="gf">0.76× avg</td><td class="neg">−0.04</td><td class="sv">527 cov</td><td class="sv">0.85× avg</td><td class="gf">0.96× avg</td><td class="neg">−0.11</td></tr>
+    </tbody>
+  </table>
+  <div class="notice">✓ = exact from POS file. <strong>GF = Good Friday · GFeve = Thursday before GF · Estr = Easter Sunday</strong> — all three inflated last week's turns. Excluding Fri/Thu/Sun (holiday-affected days): DG Mon–Wed–Sat this week avg 0.51× vs LW 0.59× — DG covers are modestly soft. SV Tue–Wed–Sat this week avg 0.94× vs LW 0.63× — SV weekday+Saturday covers are materially stronger than LW equivalent regular days. SV Sunday 1.40× is outstanding for a non-holiday Sunday.</div>
+</div>
+
+<!-- ── PAYMENT METHODS ── -->
+<div id="pane-pay" class="pane">
+  <div class="tab-label">Payment Methods</div>
+  <div class="sec">Weekly payment method breakdown</div>
+  <table class="t">
+    <thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Revenue</th></tr></thead>
+    <tbody>
+      <tr><td>06-Apr</td><td>Mon</td><td>2,455.91</td><td>0.00</td><td>591.26</td><td>3,047.17</td></tr>
+      <tr><td>07-Apr</td><td>Tue</td><td>3,214.31</td><td>89.35</td><td>865.80</td><td>4,169.46</td></tr>
+      <tr><td>08-Apr</td><td>Wed</td><td>3,510.20</td><td>0.00</td><td>1,440.70</td><td>4,950.90</td></tr>
+      <tr><td>09-Apr</td><td>Thu</td><td>3,137.85</td><td>19.05</td><td>1,575.18</td><td>4,732.08</td></tr>
+      <tr class="fri"><td>10-Apr</td><td>Fri</td><td>5,003.30</td><td>0.00</td><td>2,200.25</td><td>7,203.55</td></tr>
+      <tr class="sat"><td>11-Apr</td><td>Sat</td><td>4,677.91</td><td>42.80</td><td>4,160.89</td><td>8,881.60</td></tr>
+      <tr class="sun"><td>12-Apr</td><td>Sun</td><td>5,395.82</td><td>39.55</td><td>4,125.96</td><td>9,561.33</td></tr>
+      <tr class="tot"><td colspan="2">This week total</td><td>27,395.30</td><td>190.75</td><td>14,960.04</td><td>42,546.09</td></tr>
+    </tbody>
+  </table>
+  <div class="notice">Card 64.4% of revenue. Cash minimal at $191 over 7 days ($0 on 4 days). Delivery platform tenders surged on the weekend — Sat $4,161 and Sun $4,126 represent 46–47% of day revenue paid via platform tender (vs 19–29% Mon–Fri). Tue SV had $89 cash; includes minor PayNow and voucher transactions in card total.</div>
+</div>
+
+<!-- ── TOP MENU ── -->
+<div id="pane-menu" class="pane">
+  <div class="tab-label">Top Menu Items</div>
+  <div class="sec">Top menu items by category — full week (Mon–Sun, all 14 files)</div>
+  <table class="t">
+    <thead><tr><th>#</th><th>Category</th><th>DG</th><th>SV</th><th>Combined</th><th>% of top-10</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Pizza</td><td class="dg">9,741.44</td><td class="sv">8,753.74</td><td><strong>18,495.18</strong></td><td>50.6%</td></tr>
+      <tr><td>2</td><td>Pasta</td><td class="dg">2,389.04</td><td class="sv">2,463.05</td><td>4,852.09</td><td>13.3%</td></tr>
+      <tr><td>3</td><td>Starters</td><td class="dg">2,055.49</td><td class="sv">1,608.10</td><td>3,663.59</td><td>10.0%</td></tr>
+      <tr><td>4</td><td>Set Meals</td><td class="dg">899.80</td><td class="sv">1,179.10</td><td>2,078.90</td><td>5.7%</td></tr>
+      <tr><td>5</td><td>Delivery Bundles</td><td class="dg">1,352.20</td><td class="sv">494.74</td><td>1,846.94</td><td>5.1%</td></tr>
+      <tr><td>6</td><td>Drinks &amp; Beverages</td><td class="dg">1,033.93</td><td class="sv">587.46</td><td>1,621.39</td><td>4.4%</td></tr>
+      <tr><td>7</td><td>Beer</td><td class="dg">487.32</td><td class="sv">424.00</td><td>911.32</td><td>2.5%</td></tr>
+      <tr><td>8</td><td>Kids Meals</td><td class="dg">296.10</td><td class="sv">605.74</td><td>901.84</td><td>2.5%</td></tr>
+      <tr><td>9</td><td>Salads</td><td class="dg">384.19</td><td class="sv">457.81</td><td>842.00</td><td>2.3%</td></tr>
+      <tr><td>10</td><td>Desserts</td><td class="dg">282.34</td><td class="sv">223.26</td><td>505.60</td><td>1.4%</td></tr>
+      <tr><td>11</td><td>Wine</td><td class="dg">10.00</td><td class="sv">10.00</td><td>20.00</td><td>0.1%</td></tr>
+      <tr class="tot"><td colspan="4">Top 10 total (excl. Wine)</td><td>36,618.85</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="notice">Full 7-day data included. <strong>Pizza dominates at 50.6%</strong> of top-10 revenue. <strong>Key alert — Wine collapsed to $20 combined ($10 DG, $10 SV)</strong> vs $415 SV last reporting period. Beer steady at $911 combined ($487 DG, $424 SV). DG Delivery Bundles ($1,352) significantly outperform SV ($495) — review whether DG is bundling more aggressively or SV needs a delivery bundle push. Kids Meals stronger at SV ($606 vs DG $296) — SV has a younger family demographic.</div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+var C = {};
+function sw(n, btn) {
+  document.querySelectorAll('.pane').forEach(function(e){ e.classList.remove('on'); });
+  document.querySelectorAll('.tab').forEach(function(e){ e.classList.remove('on'); });
+  document.getElementById('pane-' + n).classList.add('on');
+  btn.classList.add('on');
+  if (n === 'daily' && !C.d) bD();
+  if (n === 'dita'  && !C.t) bT();
+  if (n === 'dp'    && !C.p) bP();
+}
+
+function bD() {
+  C.d = new Chart(document.getElementById('ch-d'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri (GF★)', 'Sat', 'Sun (Easter★)'],
+      datasets: [
+        { label: 'This Week', data: [3047.17, 4169.46, 4950.90, 4732.08, 7203.55, 8881.60, 9561.33], backgroundColor: '#C41230', borderRadius: 4 },
+        { label: 'Last Week', data: [3099.50, 4049.89, 3839.36, 7122.37, 9056.25, 7097.67, 10620.08], backgroundColor: '#BA7517', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10, padding: 12 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#888' } },
+        y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { font: { size: 11 }, color: '#888', callback: function(v){ return '$' + (v/1000).toFixed(1) + 'k'; } } }
+      }
+    }
+  });
+}
+
+function bT() {
+  C.t = new Chart(document.getElementById('ch-t'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Grab 42.5%', 'FoodPanda 24.1%', 'Oddle 23.7%', 'OTC 9.7%'],
+      datasets: [{ data: [6437, 3660, 3593, 1474], backgroundColor: ['#185FA5','#C41230','#3B6D11','#BA7517'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } } } }
+  });
+}
+
+function bP() {
+  C.p = new Chart(document.getElementById('ch-p'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [
+        { label: 'Lunch',  data: [979.14, 1553.30, 1027.20, 1226.81, 971.30, 1929.72, 3123.62],  backgroundColor: '#185FA5', borderRadius: 3 },
+        { label: 'Tea',    data: [384.06,  510.53,  357.39,  170.88, 757.11, 1686.57, 1424.25],  backgroundColor: '#B8860B', borderRadius: 3 },
+        { label: 'Dinner', data: [1253.56, 1516.21, 2885.61, 2685.27, 4486.63, 4146.58, 3809.86], backgroundColor: '#C41230', borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
+        y: { stacked: true, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { font: { size: 11 }, color: '#888', callback: function(v){ return '$' + (v/1000).toFixed(1) + 'k'; } } }
+      }
+    }
+  });
+}
+
+// Auto-render the default tab chart on load
+window.addEventListener('load', function(){ bD(); });
+</script>
+</body>
+</html>
