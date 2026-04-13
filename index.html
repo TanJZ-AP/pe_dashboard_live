@@ -5,27 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PizzaExpress Singapore — Weekly Dashboard · 6–12 Apr 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script type="text/javascript">
-!function(T,l,y){var S=T.location,k="script",D="instrumentationKey",C="ingestionendpoint",I="disableExceptionTracking",E="ai.device.",b="toLowerCase",w="crossOrigin",N="POST",e="appInsightsSDK",t=y.name||"appInsights";(y.name||T[e])&&(T[e]=t);var n=T[t]||function(d){var g=!1,f=!1,m={initialize:!0,queue:[],sv:"8",version:2,config:d};function v(e,t){var n={},a="Browser";return n[E+"id"]=a[b](),n[E+"type"]=a,n["ai.operation.name"]=S&&S.pathname||"_unknown_",n["ai.internal.sdkVersion"]="javascript:snippet_"+(m.sv||m.version),{time:function(){var e=new Date;function t(e){var t=""+e;return 1===t.length&&(t="0"+t),t}return e.getUTCFullYear()+"-"+t(e.getUTCMonth()+1)+"-"+t(e.getUTCDate())+"T"+t(e.getUTCHours())+":"+t(e.getUTCMinutes())+":"+t(e.getUTCSeconds())+"."+((e.getUTCMilliseconds()/1e3).toFixed(3)+"").slice(2,5)+"Z"}(),iKey:e,name:"Microsoft.ApplicationInsights."+e.replace(/-/g,"")+"."+t,sampleRate:100,tags:n,data:{baseData:{ver:2}}}}var h=d.url||y.src;if(h){function a(e){var t,n,a,i,r,o,s,c,u,p,l;g=!0,m.queue=[],f||(f=!0,t=h,s=function(){var e={},t=d.connectionString;if(t)for(var n=t.split(";"),a=0;a<n.length;a++){var i=n[a].split("=");if(2===i.length)e[i[0][b]()]=i[1];else if(3===i.length){var r=i[0],o=n[a].substring(r.length+1);e[r[b]()]=o}}if(!e[C]){var s=e.endpointsuffix,c=s?e.location:null;e[C]="https://"+(c?c+".":"")+"dc."+(s||"services.visualstudio.com")}return e}(),c=s[D]||d[D]||"",u=s[C],p=u?u+"/v2/track":d.endpointUrl,(l=[]).push((n="SDK LOAD Failure: Failed to load Application Insights SDK script (See stack for details)",a=t,i=p,(o=(r=v(c,"Exception")).data).baseType="ExceptionData",o.baseData.exceptions=[{typeName:"SDKLoadFailed",message:n.replace(/\./g,"-"),hasFullStack:!1,stack:n+"\nSnippet failed to load ["+a+"] -- Telemetry is disabled\nHelp Link: https://go.microsoft.com/fwlink/?linkid=2128109\nHost: "+(S&&S.pathname||"_unknown_")+"\nEndpoint: "+i,parsedStack:[]}],r)),l.push(function(e,t,n,a){var i=v(c,"Message"),r=i.data;r.baseType="MessageData";var o=r.baseData;return o.message='AI (Internal): 99 message:"'+("SDK LOAD Failure: Failed to load Application Insights SDK script (See stack for details) ("+n+")").replace(/\"/g,"")+'"',o.properties={endpoint:a},i}(0,0,t,p)),function(e,t){if(JSON){var n=T.fetch;if(n&&!y.useXhr)n(t,{method:N,body:JSON.stringify(e),mode:"cors"});else if(XMLHttpRequest){var a=new XMLHttpRequest;a.open(N,t),a.setRequestHeader("Content-type","application/json"),a.send(JSON.stringify(e))}}}(l,p))}function i(e,t){f||setTimeout(function(){!t&&m.core||a()},500)}var e=function(n){g||setTimeout(function(){if(!g){g=!0;var e,t=n,a="",i=t.tagName;if(0===t.length||i&&"SCRIPT"===i[b]())a="Script tag. Src:"+((e=t.getAttribute&&t.getAttribute("src"))||"")+"",a+=", Status: "+(t.readyState||"unknown");m.queue.push((function(){var t=v(c,"Exception"),n=t.data;n.baseType="ExceptionData";var a=n.baseData;return a.exceptions=[{typeName:"ClientError",message:"One of the SDK fetch attempts failed.",hasFullStack:!1,stack:"CDN Failure: type="+i+" src="+((e=document.querySelector&&document.querySelector("script[src*='ai.']"))?e.src:"")+" \nhelp: https://go.microsoft.com/fwlink/?linkid=2128109\ntime: "+(new Date).getTime()+"\npath: "+S.pathname+"\nEndpoint: "+p+"\nSDKVersion: "+(m.sv||"")+" ",parsedStack:[]}],t})),a&&m.queue.push(a)}},500)},o=T[t],s=o&&o.queue&&o.queue.length>0;if(o&&!o.initialize){if(s){var c=o.queue;o.queue=[],c.forEach(function(e){m.queue.push(e)})}T[t]=m}else s||T[t]||(T[t]=m);var c,u=l.createElement(k),p=l.getElementsByTagName(k)[0];u.src=h;var r=y[w];r&&(u.crossOrigin=r),u.addEventListener("load",i),u.addEventListener("error",e),p?p.parentNode.insertBefore(u,p):l.head.appendChild(u)}a()}m.core={queue:[],processTelemetry:function(e){m.queue.push(e)},track:function(e){m.queue.push(e)},_extensions:[]};var s=function(){var t={};return t.initialize=function(e){},t.trackEvent=function(e){m.core.track(e)},t.trackPageView=function(e){m.core.track(e)},t.trackException=function(e){m.core.track(e)},t.trackTrace=function(e){m.core.track(e)},t.trackMetric=function(e){m.core.track(e)},t.trackDependencyData=function(e){m.core.track(e)},t.startTrackPage=function(e){},t.stopTrackPage=function(e,t,n,a){},t.startTrackEvent=function(e){},t.stopTrackEvent=function(e,t,n){},t.addTelemetryInitializer=function(e){},t.setAuthenticatedUserContext=function(e,t,n){},t.clearAuthenticatedUserContext=function(){},t.flush=function(){},t}();return m.exports=s,m}(y.cfg);(T[t]=n).queue&&0===n.queue.length&&(n.addTelemetryInitializer(function(e){e.tags=e.tags||[],e.tags["ai.cloud.role"]="pe-dashboard"}),n.trackPageView({}))}(window,document,{
-  src: "https://js.monitor.azure.com/scripts/b/ai.3.gbl.min.js",
-  crossOrigin: "anonymous",
-  cfg: {
-    connectionString: "InstrumentationKey=d501359a-e0a7-4417-b676-8bf6d1f5cd67;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=511f0a73-98fb-4bb6-b528-e659ff388925",
-    enableAutoRouteTracking: true
-  }
-});
-</script>
-<script>
-fetch('/.auth/me').then(r=>r.json()).then(d=>{
-  if(d&&d.clientPrincipal){
-    var u=d.clientPrincipal;
-    var email=u.userDetails||u.userId||'unknown';
-    if(window.appInsights&&window.appInsights.setAuthenticatedUserContext){
-      window.appInsights.setAuthenticatedUserContext(email,null,true);
-    }
-  }
-}).catch(()=>{});
-</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a18; font-size: 13px; }
@@ -109,8 +88,7 @@ fetch('/.auth/me').then(r=>r.json()).then(d=>{
   </div>
   <div class="hdr-r">
     <span class="live">Live · SharePoint</span> Condor / Project Money / POS Daily<br>
-    14 daily POS files (DG + SV, 7 days each) · Generated 13 Apr 2026<br>
-    <a href="https://lively-tree-08a067e1e.1.azurestaticapps.net" style="color:#185fa5;font-size:10px;">🔗 lively-tree-08a067e1e.1.azurestaticapps.net</a>
+    14 daily POS files (DG + SV, 7 days each) · Generated 13 Apr 2026
   </div>
 </div>
 
@@ -127,27 +105,27 @@ fetch('/.auth/me').then(r=>r.json()).then(d=>{
 <!-- ── DAILY ── -->
 <div id="pane-daily" class="pane on">
   <div class="tab-label">Daily Breakdown</div>
-  <div class="sec">Daily revenue — This Week (6–12 Apr) vs Last Week same days (30 Mar–5 Apr)</div>
+  <div class="sec">Daily revenue (Net Sales + SC) — This Week (6–12 Apr) vs Last Week same days (30 Mar–5 Apr)</div>
   <table class="t">
     <thead>
       <tr>
         <th>Date</th><th>Day</th>
         <th>This Wk DG</th><th>This Wk SV</th><th>This Week</th>
-        <th>Last Week</th><th>Variance</th><th>Var %</th>
+        <th>Last Week</th><th>Variance</th><th>Var %</th><th>GST</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td>Mon</td><td>6 / 30 Mar</td><td class="dg">1,785.89</td><td class="sv">1,009.70</td><td><strong>3,047.17</strong></td><td>3,099.50</td><td class="neg">−52</td><td class="neg">−1.7%</td></tr>
-      <tr><td>Tue</td><td>7 / 31 Mar</td><td class="dg">1,761.57</td><td class="sv">2,063.64</td><td><strong>4,169.46</strong></td><td>4,049.89</td><td class="pos">+120</td><td class="pos">+3.0%</td></tr>
-      <tr><td>Wed</td><td>8 Apr / 1 Apr</td><td class="dg">2,296.73</td><td class="sv">2,245.37</td><td><strong>4,950.90</strong></td><td>3,839.36</td><td class="pos">+1,112</td><td class="pos">+28.9%</td></tr>
-      <tr><td>Thu</td><td>9 Apr / 2 Apr</td><td class="dg">2,198.60</td><td class="sv">2,142.75</td><td><strong>4,732.08</strong></td><td class="gf">7,122.37 ᴳᶠᵉᵛᵉ</td><td class="neg">−2,390</td><td class="neg">−33.6%</td></tr>
-      <tr class="fri"><td>Fri</td><td>10 Apr / 3 Apr</td><td class="dg">3,903.87</td><td class="sv">2,704.88</td><td><strong>7,203.55</strong></td><td class="gf">9,056.25 GF ✓</td><td class="neg">−1,853</td><td class="neg">−20.5%</td></tr>
-      <tr class="sat"><td>Sat</td><td>11 Apr / 4 Apr</td><td class="dg">4,405.88</td><td class="sv">3,742.37</td><td><strong>8,881.60</strong></td><td>7,097.67</td><td class="pos">+1,784</td><td class="pos">+25.1%</td></tr>
-      <tr class="sun"><td>Sun</td><td>12 Apr / 5 Apr</td><td class="dg">4,325.29</td><td class="sv">4,446.58</td><td><strong>9,561.33</strong></td><td class="gf">10,620.08 Easter ✓</td><td class="neg">−1,059</td><td class="neg">−10.0%</td></tr>
-      <tr class="tot"><td colspan="2">7-day total</td><td class="dg">20,678</td><td class="sv">18,355</td><td>42,546</td><td class="gf">44,885</td><td class="neg">−2,339</td><td class="neg">−5.2%</td></tr>
+      <tr><td>Mon</td><td>6 / 30 Mar</td><td class="dg">1,785.89</td><td class="sv">1,009.70</td><td><strong>2,795.59</strong></td><td>2,843.54</td><td class="neg">−48</td><td class="neg">−1.7%</td><td>251.58</td></tr>
+      <tr><td>Tue</td><td>7 / 31 Mar</td><td class="dg">1,761.57</td><td class="sv">2,063.64</td><td><strong>3,825.21</strong></td><td>3,715.49</td><td class="pos">+110</td><td class="pos">+3.0%</td><td>344.25</td></tr>
+      <tr><td>Wed</td><td>8 Apr / 1 Apr</td><td class="dg">2,296.73</td><td class="sv">2,245.37</td><td><strong>4,542.10</strong></td><td>3,522.32</td><td class="pos">+1,020</td><td class="pos">+29.0%</td><td>408.80</td></tr>
+      <tr><td>Thu</td><td>9 Apr / 2 Apr</td><td class="dg">2,198.60</td><td class="sv">2,142.75</td><td><strong>4,341.35</strong></td><td class="gf">6,534.26 ᴳᶠᵉᵛᵉ</td><td class="neg">−2,193</td><td class="neg">−33.6%</td><td>390.73</td></tr>
+      <tr class="fri"><td>Fri</td><td>10 Apr / 3 Apr</td><td class="dg">3,903.87</td><td class="sv">2,704.88</td><td><strong>6,608.75</strong></td><td class="gf">8,308.46 GF ✓</td><td class="neg">−1,700</td><td class="neg">−20.5%</td><td>594.80</td></tr>
+      <tr class="sat"><td>Sat</td><td>11 Apr / 4 Apr</td><td class="dg">4,405.88</td><td class="sv">3,742.37</td><td><strong>8,148.25</strong></td><td>6,511.65</td><td class="pos">+1,637</td><td class="pos">+25.1%</td><td>733.35</td></tr>
+      <tr class="sun"><td>Sun</td><td>12 Apr / 5 Apr</td><td class="dg">4,325.29</td><td class="sv">4,446.58</td><td><strong>8,771.87</strong></td><td class="gf">9,743.17 Easter ✓</td><td class="neg">−971</td><td class="neg">−10.0%</td><td>789.46</td></tr>
+      <tr class="tot"><td colspan="2">7-day total</td><td class="dg">20,678</td><td class="sv">18,355</td><td>39,033</td><td class="gf">41,179</td><td class="neg">−2,146</td><td class="neg">−5.2%</td><td>3,513</td></tr>
     </tbody>
   </table>
-  <div class="notice"><strong>GF = Good Friday (3 Apr)</strong> — last week's Friday was a public holiday (+$1,853 premium vs normal Fri). <strong>Easter Sunday (5 Apr)</strong> — last week's Sunday was Easter, delivering the biggest single day ($10,620 combined). This week's Sunday ($9,561) was +25% above the prior Sat. Strip out the GF+Easter premium (~$2,912) and this week's underlying trading is essentially flat week-on-week. ᴳᶠᵉᵛᵉ = Good Friday eve (Thu pre-GF rush inflated LW Thu to $7,122).</div>
+  <div class="notice">Revenue = Net Sales + Service Charge (excl. GST). GST collected separately as balance sheet liability. <strong>GF = Good Friday (3 Apr)</strong> — last week's Friday was a public holiday (+$1,700 premium vs normal Fri). <strong>Easter Sunday (5 Apr)</strong> — last week's Sunday was Easter ($9,743). Strip out the GF+Easter premium and this week's underlying trading is essentially flat week-on-week. ᴳᶠᵉᵛᵉ = Good Friday eve (Thu pre-GF rush inflated LW Thu to $6,534).</div>
   <div class="leg" style="margin-top:16px">
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#C41230"></span>This Week</span>
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#BA7517"></span>Last Week</span>
@@ -158,9 +136,9 @@ fetch('/.auth/me').then(r=>r.json()).then(d=>{
 <!-- ── KEY HIGHLIGHTS ── -->
 <div id="pane-kh" class="pane">
   <div class="tab-label">Key Highlights</div>
-  <div class="sc-note">DI and TA figures below are <strong>net sales</strong> (excluding service charge). SC of <strong>$2,148</strong> and tax of <strong>$3,514</strong> collected separately — total revenue incl. these is $42,546.</div>
+  <div class="sc-note">Revenue = Net Sales + Service Charge (excl. GST). GST of <strong>$3,513</strong> collected separately as balance sheet liability.</div>
   <div class="kg">
-    <div class="kc"><div class="kl">Total revenue (7 days)</div><div class="kv">$42,546</div><div class="ks">incl. SC $2,148 + tax $3,514</div></div>
+    <div class="kc"><div class="kl">Revenue (7 days)</div><div class="kv">$39,033</div><div class="ks">Net Sales + SC (excl. GST $3,513)</div></div>
     <div class="kc"><div class="kl">DI net sales</div><div class="kv">$21,721</div><div class="ks ku">58.9% · excl. SC</div></div>
     <div class="kc"><div class="kl">TA net sales</div><div class="kv">$15,164</div><div class="ks">41.1% · excl. SC</div></div>
     <div class="kc"><div class="kl">Delivery revenue</div><div class="kv">$13,690</div><div class="ks">Grab + FP + Oddle (net)</div></div>
@@ -169,11 +147,11 @@ fetch('/.auth/me').then(r=>r.json()).then(d=>{
   </div>
   <div class="sec">5 key takeaways — week of 6–12 Apr 2026</div>
   <ul class="hl-list">
-    <li><strong>The −5.2% gap vs last week is entirely explained by two holiday days, not underlying weakness.</strong> Strip out the Good Friday premium (LW Fri $9,056 vs this Fri $7,204 = +$1,853) and the Easter Sunday premium (LW Sun $10,620 vs this Sun $9,561 = +$1,059), and those two gaps account for ~$2,912 of the $2,339 total deficit. Wed this week was +29% vs LW Wed and Sat was +25% vs LW Sat — both strong beats. The pre-Good Friday Thursday rush last week (LW Thu $7,122 vs this Thu $4,732) also inflated last week's count.</li>
+    <li><strong>The −5.2% gap vs last week is entirely explained by two holiday days, not underlying weakness.</strong> Strip out the Good Friday premium (LW Fri $8,308 vs this Fri $6,609 = +$1,700) and the Easter Sunday premium (LW Sun $9,743 vs this Sun $8,772 = +$971), and those two gaps account for ~$2,671 of the $2,146 total deficit. Wed this week was +29% vs LW Wed and Sat was +25% vs LW Sat — both strong beats. The pre-Good Friday Thursday rush last week (LW Thu $6,534 vs this Thu $4,341) also inflated last week's count.</li>
     <li><strong>DG Saturday Oddle spike of $1,563 needs investigation — potential bulk or corporate order.</strong> DG Apr 11 Oddle net was $1,563, nearly 6× its next highest day (Thu $253) and exceeded DG Grab for the same day ($755). DG tea time on that Saturday was also its highest of the week at $1,386 — pointing squarely at a single afternoon bulk order via Oddle. Confirm with DG management whether this was a one-off event booking or a corporate client to nurture for repeat business. Without this anomaly, Oddle's normal weekly run rate is closer to ~$500–700.</li>
-    <li><strong>Sunday Apr 12 was the strongest single day of the week at $9,561 combined, with SV hitting 123 DI covers (1.40× capacity).</strong> SV's 123 DI covers is the highest DI count across both outlets for any day in the past two weeks. DG Sunday also delivered $4,715 (84 covers, 0.84×). Sunday is now a consistently strong trading day; consider running pre-booking campaigns or weekend set menus to convert the walk-in overflow into confirmed reservations.</li>
+    <li><strong>Sunday Apr 12 was the strongest single day of the week at $8,772 revenue, with SV hitting 123 DI covers (1.40× capacity).</strong> SV's 123 DI covers is the highest DI count across both outlets for any day in the past two weeks. DG Sunday also delivered 84 covers (0.84×). Sunday is now a consistently strong trading day; consider running pre-booking campaigns or weekend set menus to convert the walk-in overflow into confirmed reservations.</li>
     <li><strong>Grab leads delivery at 42.5% of TA ($6,437), but FoodPanda's weekend share is growing.</strong> On Fri–Sun, FoodPanda captured $2,654 vs Grab $4,115 — a 39% FP share vs the weekday average of 19%. FoodPanda is particularly strong for SV on weekends. Oddle's weekly total of $3,593 is inflated by the Sat DG event; normalised Oddle is ~$550–600/week. Deliveroo recorded $0 for the 7th consecutive week.</li>
-    <li><strong>Saturday and Sunday are now driving 43% of weekly revenue ($18,443 of $42,546), reversing the weekday dominance.</strong> Mon–Fri contributed $24,103 (56.7%) and Sat+Sun contributed $18,443 (43.3%). Last week Mon–Fri was 62% with Sat+Sun at 38% (though LW had the GF holiday). The weekend surge is structural — both outlets are converting strong evening dining demand on weekends. Prioritise weekend staffing, upsell readiness, and kitchen throughput planning ahead of the coming weeks.</li>
+    <li><strong>Saturday and Sunday are now driving 43% of weekly revenue ($16,920 of $39,033), reversing the weekday dominance.</strong> Mon–Fri contributed $22,113 (56.6%) and Sat+Sun contributed $16,920 (43.4%). Last week Mon–Fri was 62% with Sat+Sun at 38% (though LW had the GF holiday). The weekend surge is structural — both outlets are converting strong evening dining demand on weekends. Prioritise weekend staffing, upsell readiness, and kitchen throughput planning ahead of the coming weeks.</li>
   </ul>
 </div>
 
@@ -276,7 +254,7 @@ fetch('/.auth/me').then(r=>r.json()).then(d=>{
   <div class="tab-label">Payment Methods</div>
   <div class="sec">Weekly payment method breakdown</div>
   <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Revenue</th></tr></thead>
+    <thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Collected</th></tr></thead>
     <tbody>
       <tr><td>06-Apr</td><td>Mon</td><td>2,455.91</td><td>0.00</td><td>591.26</td><td>3,047.17</td></tr>
       <tr><td>07-Apr</td><td>Tue</td><td>3,214.31</td><td>89.35</td><td>865.80</td><td>4,169.46</td></tr>
@@ -288,7 +266,7 @@ fetch('/.auth/me').then(r=>r.json()).then(d=>{
       <tr class="tot"><td colspan="2">This week total</td><td>27,395.30</td><td>190.75</td><td>14,960.04</td><td>42,546.09</td></tr>
     </tbody>
   </table>
-  <div class="notice">Card 64.4% of revenue. Cash minimal at $191 over 7 days ($0 on 4 days). Delivery platform tenders surged on the weekend — Sat $4,161 and Sun $4,126 represent 46–47% of day revenue paid via platform tender (vs 19–29% Mon–Fri). Tue SV had $89 cash; includes minor PayNow and voucher transactions in card total.</div>
+  <div class="notice">Total Collected = Revenue + GST (what the customer pays). Card 64.4% of collections. Cash minimal at $191 over 7 days ($0 on 4 days). Delivery platform tenders surged on the weekend — Sat $4,161 and Sun $4,126 represent 46–47% of day collections paid via platform (vs 19–29% Mon–Fri).</div>
 </div>
 
 <!-- ── TOP MENU ── -->
@@ -335,8 +313,8 @@ function bD() {
     data: {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri (GF★)', 'Sat', 'Sun (Easter★)'],
       datasets: [
-        { label: 'This Week', data: [3047.17, 4169.46, 4950.90, 4732.08, 7203.55, 8881.60, 9561.33], backgroundColor: '#C41230', borderRadius: 4 },
-        { label: 'Last Week', data: [3099.50, 4049.89, 3839.36, 7122.37, 9056.25, 7097.67, 10620.08], backgroundColor: '#BA7517', borderRadius: 4 }
+        { label: 'This Week', data: [2795.59, 3825.21, 4542.10, 4341.35, 6608.75, 8148.25, 8771.87], backgroundColor: '#C41230', borderRadius: 4 },
+        { label: 'Last Week', data: [2843.54, 3715.49, 3522.32, 6534.26, 8308.46, 6511.65, 9743.17], backgroundColor: '#BA7517', borderRadius: 4 }
       ]
     },
     options: {
