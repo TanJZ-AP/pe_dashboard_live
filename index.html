@@ -3,19 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PizzaExpress Singapore — Weekly Dashboard · 13–19 Apr 2026</title>
+<title>PizzaExpress Singapore — Weekly Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a18; font-size: 13px; }
   .page { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
-  .hdr { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #e0dfd8; margin-bottom: 16px; }
+  .hdr { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #e0dfd8; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
   .hdr-l { display: flex; align-items: center; gap: 10px; }
   .logo { width: 32px; height: 32px; border-radius: 50%; background: #C41230; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; flex-shrink: 0; }
   .hdr-title { font-size: 15px; font-weight: 600; color: #1a1a18; }
   .hdr-sub { font-size: 11px; color: #5f5e5a; margin-top: 2px; }
   .hdr-r { text-align: right; font-size: 10px; color: #5f5e5a; line-height: 1.7; }
   .live { display: inline-block; background: #eaf3de; color: #27500a; font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
+  .week-sel { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .week-sel label { font-size: 10px; color: #5f5e5a; font-weight: 600; }
+  .week-sel select { font-size: 11px; padding: 3px 8px; border: 1px solid #d3d1c7; border-radius: 4px; background: #fff; color: #1a1a18; font-family: inherit; cursor: pointer; }
+  .week-sel select:focus { outline: 2px solid #C41230; outline-offset: -1px; }
   .tabs { display: flex; border-bottom: 1px solid #d3d1c7; margin-bottom: 16px; overflow-x: auto; gap: 0; }
   .tab { padding: 7px 14px; font-size: 11px; color: #888780; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color .15s, border-color .15s; }
   .tab.on { color: #C41230; border-bottom: 2px solid #C41230; font-weight: 600; }
@@ -65,17 +69,23 @@
     <div class="logo">PE</div>
     <div>
       <div class="hdr-title">PizzaExpress Singapore — Weekly Dashboard</div>
-      <div class="hdr-sub">This Week: 13–19 Apr 2026 · Mon 13 Apr complete · Tue–Sun pending</div>
+      <div class="hdr-sub" id="hdr-sub"></div>
     </div>
   </div>
   <div class="hdr-r">
     <span class="live">Live · SharePoint</span> Condor / Project Money / POS Daily<br>
-    2 daily POS files (DG + SV, Mon only) · Generated 13 Apr 2026
+    <span id="hdr-files"></span>
+    <div class="week-sel">
+      <label>Week:</label>
+      <select id="wk-sel" onchange="loadWeek()"></select>
+      <label style="margin-left:8px">Compare:</label>
+      <select id="cmp-sel" onchange="loadWeek()"></select>
+    </div>
   </div>
 </div>
 
 <div class="tabs">
-  <button class="tab on"  onclick="sw('daily',this)">Daily breakdown</button>
+  <button class="tab on" onclick="sw('daily',this)">Daily breakdown</button>
   <button class="tab" onclick="sw('kh',this)">Key highlights</button>
   <button class="tab" onclick="sw('dita',this)">DI + TA vs Delivery</button>
   <button class="tab" onclick="sw('dp',this)">Day parts</button>
@@ -87,290 +97,553 @@
 <!-- ── DAILY ── -->
 <div id="pane-daily" class="pane on">
   <div class="tab-label">Daily Breakdown</div>
-  <div class="sec">Daily revenue (Net Sales + SC) — This Week (13–19 Apr) vs Last Week same days (6–12 Apr)</div>
-  <table class="t">
-    <thead>
-      <tr>
-        <th>Date</th><th>Day</th>
-        <th>This Wk DG</th><th>This Wk SV</th><th>This Week</th>
-        <th>Last Week</th><th>Variance</th><th>Var %</th><th>GST</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>Mon</td><td>13 / 6 Apr</td><td class="dg">1,044</td><td class="sv">1,817</td><td><strong>2,861</strong></td><td>2,796</td><td class="pos">+65</td><td class="pos">+2.3%</td><td>257</td></tr>
-      <tr><td>Tue</td><td>14 / 7 Apr</td><td class="pend">pending</td><td class="pend">pending</td><td class="pend">—</td><td>3,825</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
-      <tr><td>Wed</td><td>15 / 8 Apr</td><td class="pend">pending</td><td class="pend">pending</td><td class="pend">—</td><td>4,542</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
-      <tr><td>Thu</td><td>16 / 9 Apr</td><td class="pend">pending</td><td class="pend">pending</td><td class="pend">—</td><td>4,341</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
-      <tr class="fri"><td>Fri</td><td>17 / 10 Apr</td><td class="pend">pending</td><td class="pend">pending</td><td class="pend">—</td><td>6,609</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
-      <tr class="sat"><td>Sat</td><td>18 / 11 Apr</td><td class="pend">pending</td><td class="pend">pending</td><td class="pend">—</td><td>8,148</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
-      <tr class="sun"><td>Sun</td><td>19 / 12 Apr</td><td class="pend">pending</td><td class="pend">pending</td><td class="pend">—</td><td>8,772</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
-      <tr class="tot"><td></td><td>7-day total / Mon so far</td><td class="dg">1,044</td><td class="sv">1,817</td><td>2,861</td><td>39,033</td><td class="na">—</td><td class="na">—</td><td>257</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Revenue = Net Sales + Service Charge (excl. GST). GST collected separately as balance sheet liability. Monday opening: <strong>DG $1,044 (−41.6% vs LW Mon)</strong> reflecting a softer Monday at Duo Galleria; <strong>SV $1,817 (+80.0% vs LW Mon)</strong> — Star Vista had a strong Monday rebound. Last week's Monday (Apr 6) was the weakest day at SV ($1,010) so the comparison flatters this week. Tue–Sun data pending nightly upload.</div>
+  <div class="sec" id="daily-sec"></div>
+  <table class="t"><thead><tr>
+    <th>Date</th><th>Day</th><th>This Wk DG</th><th>This Wk SV</th><th>This Week</th>
+    <th>Compare</th><th>Variance</th><th>Var %</th><th>GST</th>
+  </tr></thead><tbody id="daily-tbody"></tbody></table>
+  <div class="notice" id="daily-notice"></div>
   <div class="leg" style="margin-top:16px">
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#C41230"></span>This Week</span>
-    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#BA7517"></span>Last Week</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#BA7517"></span>Compare Week</span>
   </div>
-  <div class="cw" style="height:220px"><canvas id="ch-d" role="img" aria-label="Bar chart this week vs last week daily revenue"></canvas></div>
+  <div class="cw" style="height:220px"><canvas id="ch-d" role="img" aria-label="Bar chart daily revenue"></canvas></div>
 </div>
 
 <!-- ── KEY HIGHLIGHTS ── -->
 <div id="pane-kh" class="pane">
   <div class="tab-label">Key Highlights</div>
-  <div class="sc-note">Revenue = Net Sales + Service Charge (excl. GST). Monday opening GST: <strong>$257</strong> collected separately as balance sheet liability. Full week KPIs will update as daily files arrive.</div>
-  <div class="sec">Monday 13 Apr — opening day this week</div>
-  <div class="kg">
-    <div class="kc"><div class="kl">Mon Revenue (Day 1)</div><div class="kv">$2,861</div><div class="ks ku">+2.3% vs LW Mon ($2,796)</div></div>
-    <div class="kc"><div class="kl">DG Revenue</div><div class="kv">$1,044</div><div class="ks kd">−41.6% vs LW Mon DG ($1,786)</div></div>
-    <div class="kc"><div class="kl">SV Revenue</div><div class="kv">$1,817</div><div class="ks ku">+80.0% vs LW Mon SV ($1,010)</div></div>
-    <div class="kc"><div class="kl">DI net sales</div><div class="kv">$2,193</div><div class="ks ku">83.0% of net — strong DI Monday</div></div>
-    <div class="kc"><div class="kl">TA net sales</div><div class="kv">$448</div><div class="ks">17.0% — typical quiet Mon delivery</div></div>
-    <div class="kc"><div class="kl">DI covers (both)</div><div class="kv">86</div><div class="ks">DG 31 (0.31×) · SV 55 (0.63×)</div></div>
-  </div>
-  <div class="sec">Reference: Last Week 6–12 Apr 2026 — full 7-day summary</div>
-  <div class="kg">
-    <div class="kc"><div class="kl">LW Revenue (7 days)</div><div class="kv">$39,033</div><div class="ks">Net Sales + SC (excl. GST $3,513)</div></div>
-    <div class="kc"><div class="kl">LW DI net sales</div><div class="kv">$21,721</div><div class="ks ku">58.9% of LW net</div></div>
-    <div class="kc"><div class="kl">LW TA net sales</div><div class="kv">$15,164</div><div class="ks">41.1% — delivery strong</div></div>
-    <div class="kc"><div class="kl">LW Grab revenue</div><div class="kv">$6,437</div><div class="ks">42.5% of LW TA</div></div>
-    <div class="kc"><div class="kl">LW Oddle (Sat spike)</div><div class="kv">$3,593</div><div class="ks kd">Sat $1,639 anomaly — review</div></div>
-    <div class="kc"><div class="kl">LW DI covers</div><div class="kv">952</div><div class="ks">DG 425 avg 60/d · SV 527 avg 75/d</div></div>
-  </div>
-  <div class="sec">5 key takeaways — week of 13–19 Apr 2026 (1 day in)</div>
-  <ul class="hl-list">
-    <li><strong>SV opened the week with its strongest Monday in two weeks at $1,817 — a structural shift in SV Monday performance.</strong> Last week's Monday (Apr 6) SV recorded only $1,010 — the weakest SV day of the entire prior week. Today's $1,817 represents a +80% uplift driven by strong lunch ($850, 50.9% of SV net) and solid dinner ($777). SV's Monday DI mix was 87.3% dine-in (55 covers, 0.63× turns) — well above last week's Monday average of 72.7% DI. Watch whether this holds through the week as an indicator of sustained SV weekday strength.</li>
-    <li><strong>DG's soft Monday ($1,044, −41.6% vs LW Mon) is expected and not alarming — LW Monday was abnormally strong at DG ($1,786).</strong> Last week's DG Monday was inflated by high Oddle ($93) and takeaway ($150) volumes that are unusual for a Monday. Today DG had minimal delivery (Grab $124, FoodPanda $90, OTC $23) which is more typical Monday pattern. DG DI covers were 31 (0.31×) — soft but consistent with typical Monday DI levels. DG lunch ($330) and dinner ($498) performed adequately with tea ($142) as expected for a weekday afternoon.</li>
-    <li><strong>Combined Monday DI share of 83% is the highest this week so far — Monday is structurally the most DI-dominant day of the week.</strong> Last week's combined DI% across 7 days averaged 58.9%, with Monday at 69.9%. This week's Monday sits at 83.0% DI ($2,193 DI vs $448 TA) — reflecting that delivery demand is lowest on Mondays. This creates an opportunity: a Monday dine-in promotion (e.g. Monday loyalty reward or set lunch extension) could meaningfully lift covers and revenue since the channel mix already favours DI customers on this day.</li>
-    <li><strong>SV's $850 lunch and 31 covers in the lunch session point to strong family/corporate weekday lunch demand — consider extending weekday set lunch until 3pm.</strong> SV lunch net was $850 (50.9% of SV day) with 9 checks averaging $94/check — highly efficient. The high average check suggests group dining or set menu uptake during lunch. DG lunch ($330, 9 checks avg $37/check) is running at roughly half of SV's efficiency on a per-check basis — an opportunity to push set lunch more aggressively at DG on weekdays.</li>
-    <li><strong>Last week's Oddle Saturday spike ($1,639 on Apr 11) remains uninvestigated — confirm whether it was a bulk/event order to plan for repeat business.</strong> DG's total Oddle for last week was $3,593 (23.7% of TA), with Saturday alone contributing $1,639 (46% of the weekly Oddle total). The next highest Oddle day was Sunday ($859) and Thursday ($433). Without confirmation that this was a one-off event booking, it is difficult to project Oddle revenue accurately for this week. If it was a recurring event client, DG management should obtain a forward booking schedule for May.</li>
-  </ul>
+  <div class="sc-note" id="kh-note"></div>
+  <div class="sec" id="kh-sec1"></div>
+  <div class="kg" id="kh-cards"></div>
+  <div class="sec" id="kh-sec2"></div>
+  <div class="kg" id="kh-cmp-cards"></div>
+  <div class="sec" id="kh-sec3" style="display:none"></div>
+  <ul class="hl-list" id="kh-list"></ul>
 </div>
 
 <!-- ── DI + TA VS DELIVERY ── -->
 <div id="pane-dita" class="pane">
   <div class="tab-label">DI + TA vs Delivery</div>
-  <div class="sec">This week — DI vs TA split (net sales)</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>DG DI</th><th>DG TA</th><th>DG DI%</th><th>SV DI</th><th>SV TA</th><th>SV DI%</th><th>Comb. DI</th><th>Comb. TA</th><th>Comb. DI%</th></tr></thead>
-    <tbody>
-      <tr><td>13-Apr</td><td>Mon</td><td class="dg">734</td><td class="dg">237</td><td>75.6%</td><td class="sv">1,460</td><td class="sv">212</td><td>87.3%</td><td>2,193</td><td>448</td><td>83.0%</td></tr>
-      <tr><td class="pend">14-Apr</td><td class="pend">Tue</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">15-Apr</td><td class="pend">Wed</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">16-Apr</td><td class="pend">Thu</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="fri"><td class="pend">17-Apr</td><td class="pend">Fri</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sat"><td class="pend">18-Apr</td><td class="pend">Sat</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sun"><td class="pend">19-Apr</td><td class="pend">Sun</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="tot"><td></td><td>Mon so far</td><td class="dg">734</td><td class="dg">237</td><td>75.6%</td><td class="sv">1,460</td><td class="sv">212</td><td>87.3%</td><td>2,193</td><td>448</td><td>83.0%</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Monday is structurally the most DI-heavy day — 83.0% combined DI share vs last week's 7-day average of 58.9%. Delivery demand is minimal on Mondays: only Grab ($157) and FoodPanda ($191) active at both outlets. No Oddle or Deliveroo on Monday for either outlet.</div>
-
-  <div class="sec" style="margin-top:16px">Reference: Last Week (6–12 Apr) — delivery platform breakdown (net sales)</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>Grab</th><th>FoodPanda</th><th>Oddle</th><th>Deliveroo</th><th>OTC / Direct</th><th>Total TA</th></tr></thead>
-    <tbody>
-      <tr><td>06-Apr</td><td>Mon</td><td>243</td><td>207</td><td>93</td><td class="na">—</td><td>246</td><td>788</td></tr>
-      <tr><td>07-Apr</td><td>Tue</td><td>562</td><td>150</td><td>83</td><td class="na">—</td><td>259</td><td>1,053</td></tr>
-      <tr><td>08-Apr</td><td>Wed</td><td>753</td><td>410</td><td>159</td><td class="na">—</td><td>230</td><td>1,551</td></tr>
-      <tr><td>09-Apr</td><td>Thu</td><td>763</td><td>239</td><td>433</td><td class="na">—</td><td>64</td><td>1,499</td></tr>
-      <tr class="fri"><td>10-Apr</td><td>Fri</td><td>780</td><td>912</td><td>327</td><td class="na">—</td><td>253</td><td>2,272</td></tr>
-      <tr class="sat"><td>11-Apr</td><td>Sat</td><td>1,501</td><td>669</td><td>1,639</td><td class="na">—</td><td>100</td><td>3,909</td></tr>
-      <tr class="sun"><td>12-Apr</td><td>Sun</td><td>1,836</td><td>1,073</td><td>859</td><td class="na">—</td><td>323</td><td>4,091</td></tr>
-      <tr class="tot"><td></td><td>LW 7-day total</td><td>6,437</td><td>3,660</td><td>3,593</td><td class="na">$0</td><td>1,474</td><td>15,164</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Deliveroo: $0 all 7 days — platform inactive. Grab led at 42.5% of TA ($6,437). Sat Oddle spike ($1,639) is a DG anomaly — likely bulk/event order. FoodPanda strong on Fri ($912) and Sun ($1,073). OTC/Direct ($1,474) reflects healthy self-collection business.</div>
+  <div class="sec" id="dita-sec1"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>DG DI</th><th>DG TA</th><th>DG DI%</th><th>SV DI</th><th>SV TA</th><th>SV DI%</th><th>Comb. DI</th><th>Comb. TA</th><th>Comb. DI%</th></tr></thead>
+  <tbody id="dita-tbody"></tbody></table>
+  <div class="notice" id="dita-notice"></div>
+  <div class="sec" style="margin-top:16px" id="dita-sec2"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Grab</th><th>FoodPanda</th><th>Oddle</th><th>Deliveroo</th><th>OTC / Direct</th><th>Total TA</th></tr></thead>
+  <tbody id="del-tbody"></tbody></table>
+  <div class="notice" id="del-notice"></div>
   <div class="leg" style="margin-top:16px">
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#185FA5"></span>Grab</span>
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#C41230"></span>FoodPanda</span>
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#3B6D11"></span>Oddle</span>
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#BA7517"></span>OTC</span>
   </div>
-  <div class="cw" style="height:180px"><canvas id="ch-t" role="img" aria-label="Doughnut of last week delivery platform split"></canvas></div>
+  <div class="cw" style="height:180px"><canvas id="ch-t" role="img" aria-label="Doughnut delivery platform split"></canvas></div>
 </div>
 
 <!-- ── DAY PARTS ── -->
 <div id="pane-dp" class="pane">
   <div class="tab-label">Day Parts</div>
-  <div class="sec">This week — day part performance (combined DG + SV, net sales)</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>Lunch</th><th>Lunch%</th><th>Tea Time</th><th>Tea%</th><th>Dinner</th><th>Dinner%</th><th>Net total</th></tr></thead>
-    <tbody>
-      <tr><td>13-Apr</td><td>Mon</td><td>1179.50</td><td>44.7%</td><td>186.26</td><td>7.1%</td><td>1275.82</td><td>48.3%</td><td>2641.58</td></tr>
-      <tr><td class="pend">14-Apr</td><td class="pend">Tue</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">15-Apr</td><td class="pend">Wed</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">16-Apr</td><td class="pend">Thu</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="fri"><td class="pend">17-Apr</td><td class="pend">Fri</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sat"><td class="pend">18-Apr</td><td class="pend">Sat</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sun"><td class="pend">19-Apr</td><td class="pend">Sun</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="tot"><td></td><td>Mon so far</td><td>1179.50</td><td>44.7%</td><td>186.26</td><td>7.1%</td><td>1275.82</td><td>48.3%</td><td>2641.58</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Monday day part: Lunch (44.7%) and Dinner (48.3%) roughly balanced, with Tea light at 7.1% — typical Monday pattern (SV tea $44 only). SV lunch $849.90 dominates (50.9% of SV day) vs DG lunch $329.60 (34.0% of DG day).</div>
-
-  <div class="sec" style="margin-top:16px">Reference: Last Week (6–12 Apr) — full 7-day day part breakdown</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>Lunch</th><th>Lunch%</th><th>Tea Time</th><th>Tea%</th><th>Dinner</th><th>Dinner%</th><th>Net total</th></tr></thead>
-    <tbody>
-      <tr><td>06-Apr</td><td>Mon</td><td>979.14</td><td>37.4%</td><td>384.06</td><td>14.7%</td><td>1253.56</td><td>47.9%</td><td>2616.76</td></tr>
-      <tr><td>07-Apr</td><td>Tue</td><td>1553.30</td><td>43.4%</td><td>510.53</td><td>14.3%</td><td>1516.21</td><td>42.4%</td><td>3580.04</td></tr>
-      <tr><td>08-Apr</td><td>Wed</td><td>1027.20</td><td>24.1%</td><td>357.39</td><td>8.4%</td><td>2885.61</td><td>67.6%</td><td>4270.20</td></tr>
-      <tr><td>09-Apr</td><td>Thu</td><td>1226.81</td><td>30.0%</td><td>170.88</td><td>4.2%</td><td>2685.27</td><td>65.8%</td><td>4082.96</td></tr>
-      <tr class="fri"><td>10-Apr</td><td>Fri</td><td>971.30</td><td>15.6%</td><td>757.11</td><td>12.2%</td><td>4486.63</td><td>72.2%</td><td>6215.04</td></tr>
-      <tr class="sat"><td>11-Apr</td><td>Sat</td><td>1929.72</td><td>24.9%</td><td>1686.57</td><td>21.7%</td><td>4146.58</td><td>53.4%</td><td>7762.87</td></tr>
-      <tr class="sun"><td>12-Apr</td><td>Sun</td><td>3123.62</td><td>37.4%</td><td>1424.25</td><td>17.0%</td><td>3809.86</td><td>45.6%</td><td>8357.73</td></tr>
-      <tr class="tot"><td></td><td>LW 7-day total</td><td>10811.09</td><td>29.3%</td><td>5290.79</td><td>14.3%</td><td>20783.72</td><td>56.3%</td><td>36885.60</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Sat tea time elevated to $1,687 (21.7%) — includes DG Oddle bulk order in afternoon slot. Sunday lunch ($3,124, 37.4%) is strongest single lunch day. Dinner dominated all 7 days at 56.3% of total net. Weekday tea time (Mon–Fri) averaged 8.3% of those days' net sales.</div>
+  <div class="sec" id="dp-sec1"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Lunch</th><th>Lunch%</th><th>Tea Time</th><th>Tea%</th><th>Dinner</th><th>Dinner%</th><th>Net total</th></tr></thead>
+  <tbody id="dp-tbody"></tbody></table>
+  <div class="notice" id="dp-notice"></div>
+  <div class="sec" style="margin-top:16px" id="dp-sec2"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Lunch</th><th>Lunch%</th><th>Tea Time</th><th>Tea%</th><th>Dinner</th><th>Dinner%</th><th>Net total</th></tr></thead>
+  <tbody id="dp-cmp-tbody"></tbody></table>
+  <div class="notice" id="dp-cmp-notice"></div>
   <div class="leg" style="margin-top:16px">
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#185FA5"></span>Lunch</span>
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#B8860B"></span>Tea</span>
     <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#C41230"></span>Dinner</span>
   </div>
-  <div class="cw" style="height:210px"><canvas id="ch-p" role="img" aria-label="Stacked bar chart of last week day parts"></canvas></div>
+  <div class="cw" style="height:210px"><canvas id="ch-p" role="img" aria-label="Stacked bar chart day parts"></canvas></div>
 </div>
 
 <!-- ── TABLE TURNS ── -->
 <div id="pane-turns" class="pane">
   <div class="tab-label">Table Turns</div>
-  <div class="sec">This week — table turns (DG capacity 100 · SV capacity 88)</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>DG DI Covers</th><th>DG Turns</th><th>SV DI Covers</th><th>SV Turns</th></tr></thead>
-    <tbody>
-      <tr><td>13-Apr</td><td>Mon</td><td class="dg">31</td><td class="dg">0.31×</td><td class="sv">55</td><td class="sv">0.62×</td></tr>
-      <tr><td class="pend">14-Apr</td><td class="pend">Tue</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">15-Apr</td><td class="pend">Wed</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">16-Apr</td><td class="pend">Thu</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="fri"><td class="pend">17-Apr</td><td class="pend">Fri</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sat"><td class="pend">18-Apr</td><td class="pend">Sat</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sun"><td class="pend">19-Apr</td><td class="pend">Sun</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="tot"><td></td><td>Mon so far</td><td class="dg">31 covers</td><td class="dg">0.31× avg</td><td class="sv">55 covers</td><td class="sv">0.62× avg</td></tr>
-    </tbody>
-  </table>
-
-  <div class="sec" style="margin-top:16px">Reference: Last Week (6–12 Apr) — full 7-day table turns</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>DG DI Covers</th><th>DG Turns</th><th>LW DG vs TW</th><th>SV DI Covers</th><th>SV Turns</th><th>LW SV vs TW</th></tr></thead>
-    <tbody>
-      <tr><td>06-Apr</td><td>Mon</td><td class="dg">42</td><td class="dg">0.42×</td><td class="neg">-0.11</td><td class="sv">31</td><td class="sv">0.35×</td><td class="pos">+0.27</td></tr>
-      <tr><td>07-Apr</td><td>Tue</td><td class="dg">30</td><td class="dg">0.30×</td><td class="na">pending</td><td class="sv">73</td><td class="sv">0.83×</td><td class="na">pending</td></tr>
-      <tr><td>08-Apr</td><td>Wed</td><td class="dg">46</td><td class="dg">0.46×</td><td class="na">pending</td><td class="sv">69</td><td class="sv">0.78×</td><td class="na">pending</td></tr>
-      <tr><td>09-Apr</td><td>Thu</td><td class="dg">70</td><td class="dg">0.70×</td><td class="na">pending</td><td class="sv">56</td><td class="sv">0.64×</td><td class="na">pending</td></tr>
-      <tr class="fri"><td>10-Apr</td><td>Fri</td><td class="dg">87</td><td class="dg">0.87×</td><td class="na">pending</td><td class="sv">68</td><td class="sv">0.77×</td><td class="na">pending</td></tr>
-      <tr class="sat"><td>11-Apr</td><td>Sat</td><td class="dg">66</td><td class="dg">0.66×</td><td class="na">pending</td><td class="sv">107</td><td class="sv">1.22×</td><td class="na">pending</td></tr>
-      <tr class="sun"><td>12-Apr</td><td>Sun</td><td class="dg">84</td><td class="dg">0.84×</td><td class="na">pending</td><td class="sv">123</td><td class="sv">1.40×</td><td class="na">pending</td></tr>
-      <tr class="tot"><td></td><td>LW 7-day avg</td><td class="dg">425 total</td><td class="dg">0.61× avg</td><td class="na">—</td><td class="sv">527 total</td><td class="sv">0.86× avg</td><td class="na">—</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">DG Monday 0.31× (31 covers) is below last week's Monday of 0.42× (42 covers) — early week DG DI is soft. SV Monday 0.63× (55 covers) vs LW Monday 0.35× (31 covers) — SV opened stronger. Last week SV peaked at 1.40× on Sunday (123 covers — SV's best day in the comparison period). DG Friday was its best at 0.87× (87 covers). Avg week turns: DG 0.61×, SV 0.86×.</div>
+  <div class="sec" id="turns-sec1"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>DG DI Covers</th><th>DG Turns</th><th>SV DI Covers</th><th>SV Turns</th></tr></thead>
+  <tbody id="turns-tbody"></tbody></table>
+  <div class="sec" style="margin-top:16px" id="turns-sec2"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>DG DI Covers</th><th>DG Turns</th><th>SV DI Covers</th><th>SV Turns</th></tr></thead>
+  <tbody id="turns-cmp-tbody"></tbody></table>
+  <div class="notice" id="turns-notice"></div>
 </div>
 
 <!-- ── PAYMENT METHODS ── -->
 <div id="pane-pay" class="pane">
   <div class="tab-label">Payment Methods</div>
   <div class="sc-note">Total Collected = Revenue + GST (what the customer pays).</div>
-  <div class="sec">This week — payment method breakdown</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Collected</th></tr></thead>
-    <tbody>
-      <tr><td>13-Apr</td><td>Mon</td><td>2738.95</td><td>0.00</td><td>379.47</td><td>3118.42</td></tr>
-      <tr><td class="pend">14-Apr</td><td class="pend">Tue</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">15-Apr</td><td class="pend">Wed</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr><td class="pend">16-Apr</td><td class="pend">Thu</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="fri"><td class="pend">17-Apr</td><td class="pend">Fri</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sat"><td class="pend">18-Apr</td><td class="pend">Sat</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="sun"><td class="pend">19-Apr</td><td class="pend">Sun</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td><td class="pend">—</td></tr>
-      <tr class="tot"><td></td><td>Mon total</td><td>2738.95</td><td>0.00</td><td>379.47</td><td>3118.42</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Monday: Card 87.8% ($2738.95) · Cash $0.00 · Platform/Other 12.2% ($379.47). Total Collected = Revenue + GST (what the customer pays).</div>
-
-  <div class="sec" style="margin-top:16px">Reference: Last Week (6–12 Apr) — payment breakdown</div>
-  <table class="t">
-    <thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Collected</th></tr></thead>
-    <tbody>
-      <tr><td>06-Apr</td><td>Mon</td><td>2455.91</td><td>0.00</td><td>591.26</td><td>3047.17</td></tr>
-      <tr><td>07-Apr</td><td>Tue</td><td>3194.31</td><td>89.35</td><td>885.80</td><td>4169.46</td></tr>
-      <tr><td>08-Apr</td><td>Wed</td><td>3462.24</td><td>0.00</td><td>1488.66</td><td>4950.90</td></tr>
-      <tr><td>09-Apr</td><td>Thu</td><td>3128.85</td><td>19.05</td><td>1596.18</td><td>4744.08</td></tr>
-      <tr class="fri"><td>10-Apr</td><td>Fri</td><td>4998.30</td><td>0.00</td><td>2205.25</td><td>7203.55</td></tr>
-      <tr class="sat"><td>11-Apr</td><td>Sat</td><td>4616.91</td><td>42.80</td><td>4230.89</td><td>8890.60</td></tr>
-      <tr class="sun"><td>12-Apr</td><td>Sun</td><td>5398.82</td><td>39.55</td><td>4140.96</td><td>9579.33</td></tr>
-      <tr class="tot"><td></td><td>LW 7-day total</td><td>27255.34</td><td>190.75</td><td>15139.00</td><td>42585.09</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Total Collected = Revenue + GST (what the customer pays). LW card 64.0% of collections. Cash minimal at $190.75 over 7 days ($0 on 4 days). Delivery platform tenders surged on Sat ($4,231) and Sun ($4,141) — 47–48% of day collections via platform vs 17–29% Mon–Thu.</div>
+  <div class="sec" id="pay-sec1"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Collected</th></tr></thead>
+  <tbody id="pay-tbody"></tbody></table>
+  <div class="sec" style="margin-top:16px" id="pay-sec2"></div>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Collected</th></tr></thead>
+  <tbody id="pay-cmp-tbody"></tbody></table>
+  <div class="notice" id="pay-notice"></div>
 </div>
 
 <!-- ── TOP MENU ── -->
 <div id="pane-menu" class="pane">
   <div class="tab-label">Top Menu Items</div>
-  <div class="sec">This week menu categories — Mon 13 Apr only (2 files: DG + SV)</div>
-  <table class="t">
-    <thead><tr><th>#</th><th>Category</th><th>DG</th><th>SV</th><th>Combined</th><th>% of total</th></tr></thead>
-    <tbody>
-      <tr><td>1</td><td>Pizza</td><td class="dg">457.65</td><td class="sv">683.82</td><td><strong>1141.47</strong></td><td>43.3%</td></tr>
-      <tr><td>2</td><td>Pasta</td><td class="dg">143.00</td><td class="sv">302.80</td><td><strong>445.80</strong></td><td>16.9%</td></tr>
-      <tr><td>3</td><td>Starters</td><td class="dg">75.86</td><td class="sv">218.90</td><td><strong>294.76</strong></td><td>11.2%</td></tr>
-      <tr><td>4</td><td>Set Meals</td><td class="dg">89.60</td><td class="sv">142.30</td><td><strong>231.90</strong></td><td>8.8%</td></tr>
-      <tr><td>5</td><td>Beer</td><td class="dg">88.00</td><td class="sv">111.80</td><td><strong>199.80</strong></td><td>7.6%</td></tr>
-      <tr><td>6</td><td>Drinks & Beverages</td><td class="dg">60.20</td><td class="sv">91.40</td><td><strong>151.60</strong></td><td>5.8%</td></tr>
-      <tr><td>7</td><td>Salads</td><td class="dg">10.00</td><td class="sv">89.20</td><td><strong>99.20</strong></td><td>3.8%</td></tr>
-      <tr><td>8</td><td>Desserts</td><td class="dg">15.00</td><td class="sv">28.15</td><td><strong>43.15</strong></td><td>1.6%</td></tr>
-      <tr><td>9</td><td>Kids Meals</td><td class="dg">17.90</td><td class="sv">—</td><td><strong>17.90</strong></td><td>0.7%</td></tr>
-      <tr><td>10</td><td>Wine</td><td class="dg">10.00</td><td class="sv">—</td><td><strong>10.00</strong></td><td>0.4%</td></tr>
-      <tr class="tot"><td></td><td>Total</td><td class="dg">967.21</td><td class="sv">1668.37</td><td>2635.58</td><td>—</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Monday only — 2 files processed. <strong>Pizza dominates at 43.3%</strong> of total: Classic Pizza leads at DG ($150) and SV ($322); Romana adds $113 DG and $218 SV. SV Pasta strong at $303 vs DG $143 — SV has higher pasta uptake on Mondays. No Delivery Bundles sold Monday (delivery bundles typically activate Thu–Sun on high-delivery days). Full week menu analysis will populate as daily files arrive.</div>
-
-  <div class="sec" style="margin-top:16px">Reference: Last Week (6–12 Apr) — full 7-day menu breakdown</div>
-  <table class="t">
-    <thead><tr><th>#</th><th>Category</th><th>DG</th><th>SV</th><th>Combined</th><th>% of LW top-11</th></tr></thead>
-    <tbody>
-      <tr><td>1</td><td>Pizza</td><td class="dg">10248.57</td><td class="sv">9022.95</td><td><strong>19271.52</strong></td><td>52.3%</td></tr>
-      <tr><td>2</td><td>Pasta</td><td class="dg">2389.04</td><td class="sv">2463.05</td><td><strong>4852.09</strong></td><td>13.2%</td></tr>
-      <tr><td>3</td><td>Starters</td><td class="dg">2055.49</td><td class="sv">1608.10</td><td><strong>3663.59</strong></td><td>9.9%</td></tr>
-      <tr><td>4</td><td>Set Meals</td><td class="dg">899.80</td><td class="sv">1179.10</td><td><strong>2078.90</strong></td><td>5.6%</td></tr>
-      <tr><td>5</td><td>Delivery Bundles</td><td class="dg">1352.20</td><td class="sv">572.47</td><td><strong>1924.67</strong></td><td>5.2%</td></tr>
-      <tr><td>6</td><td>Drinks & Beverages</td><td class="dg">1045.93</td><td class="sv">587.46</td><td><strong>1633.39</strong></td><td>4.4%</td></tr>
-      <tr><td>7</td><td>Beer</td><td class="dg">487.32</td><td class="sv">424.00</td><td><strong>911.32</strong></td><td>2.5%</td></tr>
-      <tr><td>8</td><td>Kids Meals</td><td class="dg">296.10</td><td class="sv">605.74</td><td><strong>901.84</strong></td><td>2.4%</td></tr>
-      <tr><td>9</td><td>Salads</td><td class="dg">384.19</td><td class="sv">457.81</td><td><strong>842.00</strong></td><td>2.3%</td></tr>
-      <tr><td>10</td><td>Desserts</td><td class="dg">282.34</td><td class="sv">223.26</td><td><strong>505.60</strong></td><td>1.4%</td></tr>
-      <tr><td>11</td><td>Wine</td><td class="dg">151.35</td><td class="sv">110.00</td><td><strong>261.35</strong></td><td>0.7%</td></tr>
-      <tr class="tot"><td></td><td>LW Total</td><td class="dg">19592.33</td><td class="sv">17253.94</td><td>36846.27</td><td>—</td></tr>
-    </tbody>
-  </table>
-  <div class="notice">Full 7-day last week data (all 14 menuItemReport files). <strong>Pizza dominates at 52.3%</strong> of top-11 — includes Classic, Romana, Grande, Vegan, and Half &amp; Half sub-categories. DG Delivery Bundles ($1352.20) significantly outperform SV ($572.47) — review SV delivery bundle push. Kids Meals stronger at SV ($605.74 vs DG $296.10) — SV has younger family demographic. Sat DG Oddle event inflated DG Delivery Bundles for the week.</div>
+  <div class="sec" id="menu-sec1"></div>
+  <table class="t"><thead><tr><th>#</th><th>Category</th><th>DG</th><th>SV</th><th>Combined</th><th>% of total</th></tr></thead>
+  <tbody id="menu-tbody"></tbody></table>
+  <div class="sec" style="margin-top:16px" id="menu-sec2"></div>
+  <table class="t"><thead><tr><th>#</th><th>Category</th><th>DG</th><th>SV</th><th>Combined</th><th>% of total</th></tr></thead>
+  <tbody id="menu-cmp-tbody"></tbody></table>
+  <div class="notice" id="menu-notice"></div>
 </div>
 
 </div><!-- /page -->
 
 <script>
-var C = {};
+var WEEKS = [{"key":0,"label":"13\u201319 Apr 2026","monday":"2026-04-13","partial":true,"days_with_data":["2026-04-13"],"num_days":1,"daily":{"dates":["2026-04-13"],"day_names":["Mon"],"date_labels":["13-Apr"],"dg":[1044],"sv":[1817],"combined":[2861],"gst":[257]},"dita":{"dates":["2026-04-13"],"day_names":["Mon"],"dg_di":[734],"dg_ta":[237],"dg_di_pct":[75.6],"sv_di":[1460],"sv_ta":[212],"sv_di_pct":[87.3],"comb_di":[2193],"comb_ta":[448],"comb_di_pct":[83.0]},"delivery":{"dates":["2026-04-13"],"day_names":["Mon"],"grab":[157],"foodpanda":[191],"oddle":[0],"deliveroo":[0],"otc":[100],"total_ta":[448]},"dayparts":{"dates":["2026-04-13"],"day_names":["Mon"],"lunch":[1179.5],"lunch_pct":[44.7],"tea":[186.26],"tea_pct":[7.1],"dinner":[1275.82],"dinner_pct":[48.3],"net_total":[2641.58]},"turns":{"dates":["2026-04-13"],"day_names":["Mon"],"dg_covers":[31],"dg_turns":[0.31],"sv_covers":[55],"sv_turns":[0.62]},"payments":{"dates":["2026-04-13"],"day_names":["Mon"],"credit_card":[2738.95],"cash":[0],"delivery_platforms":[379.47],"total_collected":[3118.42]},"menu":{"categories":["Pizza","Pasta","Starters","Set Meals","Beer","Drinks & Beverages","Salads","Desserts","Kids Meals","Wine"],"dg":[457.65,143.0,75.86,89.6,88.0,60.2,10.0,15.0,17.9,10.0],"sv":[683.82,302.8,218.9,142.3,111.8,91.4,89.2,28.15,0,0],"combined":[1141.47,445.8,294.76,231.9,199.8,151.6,99.2,43.15,17.9,10.0],"pct":[43.3,16.9,11.2,8.8,7.6,5.8,3.8,1.6,0.7,0.4]},"kpi":{"total_revenue":2861,"total_gst":257,"total_dg":1044,"total_sv":1817,"total_di":2193,"total_ta":448,"di_pct":83.0,"total_covers_dg":31,"total_covers_sv":55,"avg_covers_dg":31,"avg_covers_sv":55,"avg_turns_dg":0.31,"avg_turns_sv":0.62,"n_days":1,"delivery_totals":{"Grab":157,"FoodPanda":191,"Oddle":0,"Deliveroo":0,"OTC":100}},"highlights":[]},{"key":-1,"label":"6\u201312 Apr 2026","monday":"2026-04-06","partial":false,"days_with_data":["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"],"num_days":7,"daily":{"dates":["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"date_labels":["06-Apr","07-Apr","08-Apr","09-Apr","10-Apr","11-Apr","12-Apr"],"dg":[1786,1762,2297,2199,3904,4406,4325],"sv":[1010,2064,2245,2143,2705,3742,4447],"combined":[2796,3825,4542,4341,6609,8148,8772],"gst":[252,344,409,391,595,733,789]},"dita":{"dates":["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"dg_di":[1144,905,1274,1320,2447,1517,2106],"dg_ta":[532,766,895,747,1213,2737,2014],"dg_di_pct":[68.3,54.2,58.8,63.9,66.9,35.7,51.1],"sv_di":[685,1622,1444,1264,1496,2337,2161],"sv_ta":[257,287,656,752,1059,1172,2077],"sv_di_pct":[72.7,85.0,68.8,62.7,58.6,66.6,51.0],"comb_di":[1828,2527,2719,2584,3943,3854,4266],"comb_ta":[788,1053,1551,1499,2272,3909,4091],"comb_di_pct":[69.9,70.6,63.7,63.3,63.4,49.6,51.0]},"delivery":{"dates":["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"grab":[243,562,753,763,780,1501,1836],"foodpanda":[207,150,410,239,912,669,1073],"oddle":[93,83,159,433,327,1639,859],"deliveroo":[0,0,0,0,0,0,0],"otc":[246,259,230,64,253,100,323],"total_ta":[788,1053,1551,1499,2272,3909,4091]},"dayparts":{"dates":["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"lunch":[979.14,1553.3,1027.2,1226.81,971.3,1929.72,3123.62],"lunch_pct":[37.4,43.4,24.1,30.0,15.6,24.9,37.4],"tea":[384.06,510.53,357.39,170.88,757.11,1686.57,1424.25],"tea_pct":[14.7,14.3,8.4,4.2,12.2,21.7,17.0],"dinner":[1253.56,1516.21,2885.61,2685.27,4486.63,4146.58,3809.86],"dinner_pct":[47.9,42.4,67.6,65.8,72.2,53.4,45.6],"net_total":[2616.76,3580.04,4270.2,4082.96,6215.04,7762.87,8357.73]},"turns":{"dates":["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"dg_covers":[42,30,46,70,87,66,84],"dg_turns":[0.42,0.3,0.46,0.7,0.87,0.66,0.84],"sv_covers":[31,73,69,56,68,107,123],"sv_turns":[0.35,0.83,0.78,0.64,0.77,1.22,1.4]},"payments":{"dates":["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"credit_card":[2455.91,3214.31,3510.2,3148.85,5003.3,4686.91,5413.82],"cash":[0,89.35,0.0,19.05,0,42.8,39.55],"delivery_platforms":[591.26,865.8,1440.7,1576.18,2200.25,4160.89,4125.96],"total_collected":[3047.17,4169.46,4950.9,4744.08,7203.55,8890.6,9579.33]},"menu":{"categories":["Pizza","Pasta","Starters","Set Meals","Delivery Bundles","Drinks & Beverages","Beer","Kids Meals","Salads","Desserts","Wine"],"dg":[10248.57,2389.04,2055.49,899.8,1352.2,1045.93,487.32,296.1,384.19,282.34,151.35],"sv":[9022.95,2463.05,1608.1,1179.1,572.47,587.46,424.0,605.74,457.81,223.26,110.0],"combined":[19271.52,4852.09,3663.59,2078.9,1924.67,1633.39,911.32,901.84,842.0,505.6,261.35],"pct":[52.3,13.2,9.9,5.6,5.2,4.4,2.5,2.4,2.3,1.4,0.7]},"kpi":{"total_revenue":39033,"total_gst":3513,"total_dg":20678,"total_sv":18355,"total_di":21721,"total_ta":15164,"di_pct":58.9,"total_covers_dg":425,"total_covers_sv":527,"avg_covers_dg":61,"avg_covers_sv":75,"avg_turns_dg":0.61,"avg_turns_sv":0.86,"n_days":7,"delivery_totals":{"Grab":6438,"FoodPanda":3660,"Oddle":3593,"Deliveroo":0,"OTC":1475}},"highlights":[]},{"key":-2,"label":"30 Mar \u2013 5 Apr 2026","monday":"2026-03-30","partial":false,"days_with_data":["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"],"num_days":7,"daily":{"dates":["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"date_labels":["30-Mar","31-Mar","01-Apr","02-Apr","03-Apr","04-Apr","05-Apr"],"dg":[1430,2185,1515,3371,4240,3146,4096],"sv":[1413,1531,2008,3164,4069,3366,5647],"combined":[2844,3715,3522,6534,8308,6512,9743],"gst":[256,334,317,588,748,586,877]},"dita":{"dates":["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"dg_di":[954,1352,1101,2276,2419,2142,2593],"dg_ta":[382,698,307,866,1578,789,1244],"dg_di_pct":[71.4,65.9,78.2,72.4,60.5,73.1,67.6],"sv_di":[988,736,1265,2062,2338,1810,3881],"sv_ta":[326,721,616,896,1497,1375,1379],"sv_di_pct":[75.2,50.5,67.3,69.7,61.0,56.8,73.8],"comb_di":[1942,2088,2366,4338,4758,3952,6474],"comb_ta":[708,1420,923,1762,3075,2165,2623],"comb_di_pct":[73.3,59.5,71.9,71.1,60.7,64.6,71.2]},"delivery":{"dates":["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"grab":[478,318,486,1016,1372,756,1163],"foodpanda":[199,678,227,320,886,704,969],"oddle":[0,221,128,130,600,253,217],"deliveroo":[0,0,0,0,0,0,0],"otc":[31,202,81,296,218,452,274],"total_ta":[708,1420,923,1762,3075,2165,2623]},"dayparts":{"dates":["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"lunch":[1075.52,1460.44,646.74,1607.81,2003.85,1680.94,4180.97],"lunch_pct":[42.0,41.6,19.7,26.4,25.6,27.5,46.0],"tea":[391.16,306.15,157.13,363.93,1257.46,382.9,893.39],"tea_pct":[15.3,8.7,4.8,6.0,16.1,6.3,9.8],"dinner":[1094.32,1741.29,2484.75,4128.71,4571.38,4052.62,4022.59],"dinner_pct":[42.7,49.6,75.6,67.7,58.4,66.3,44.2],"net_total":[2561.0,3507.88,3288.62,6100.45,7832.69,6116.46,9096.95]},"turns":{"dates":["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"dg_covers":[31,55,46,86,101,99,115],"dg_turns":[0.31,0.55,0.46,0.86,1.01,0.99,1.15],"sv_covers":[46,38,50,103,107,77,171],"sv_turns":[0.52,0.43,0.57,1.17,1.22,0.88,1.94]},"payments":{"dates":["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"],"day_names":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"credit_card":[2295.74,2688.97,2921.93,5361.12,5735.89,5154.15,8027.4],"cash":[65.95,33.55,0.0,162.95,206.1,76.75,32.35],"delivery_platforms":[737.81,1333.37,923.43,1598.3,3134.26,1872.77,2560.33],"total_collected":[3099.5,4055.89,3845.36,7122.37,9076.25,7103.67,10620.08]},"menu":{"categories":["Pizza","Pasta","Starters","Drinks & Beverages","Delivery Bundles","Kids Meals","Beer","Salads","Desserts","Set Meals","Wine"],"dg":[9465.15,3094.17,1846.41,1052.42,572.97,521.0,530.35,403.08,397.12,574.1,166.48],"sv":[8162.34,2114.74,1750.83,619.55,622.86,613.74,355.01,462.41,324.78,117.4,264.22],"combined":[17627.49,5208.91,3597.24,1671.97,1195.83,1134.74,885.36,865.49,721.9,691.5,430.7],"pct":[51.8,15.3,10.6,4.9,3.5,3.3,2.6,2.5,2.1,2.0,1.3]},"kpi":{"total_revenue":41179,"total_gst":3706,"total_dg":19982,"total_sv":21197,"total_di":25917,"total_ta":12675,"di_pct":67.2,"total_covers_dg":533,"total_covers_sv":592,"avg_covers_dg":76,"avg_covers_sv":85,"avg_turns_dg":0.76,"avg_turns_sv":0.96,"n_days":7,"delivery_totals":{"Grab":5589,"FoodPanda":3983,"Oddle":1549,"Deliveroo":0,"OTC":1554}},"highlights":[]},{"key":-3,"label":"23\u201329 Mar 2026","monday":"2026-03-23","partial":true,"days_with_data":["2026-03-26","2026-03-27","2026-03-28","2026-03-29"],"num_days":4,"daily":{"dates":["2026-03-26","2026-03-27","2026-03-28","2026-03-29"],"day_names":["Thu","Fri","Sat","Sun"],"date_labels":["26-Mar","27-Mar","28-Mar","29-Mar"],"dg":[2580,3450,2806,3719],"sv":[2142,3744,4840,4512],"combined":[4722,7194,7646,8231],"gst":[425,647,688,741]},"dita":{"dates":["2026-03-26","2026-03-27","2026-03-28","2026-03-29"],"day_names":["Thu","Fri","Sat","Sun"],"dg_di":[1494,2434,1217,1932],"dg_ta":[937,956,1467,1595],"dg_di_pct":[61.5,71.8,45.4,54.8],"sv_di":[1217,1676,2991,2663],"sv_ta":[804,1900,1550,1583],"sv_di_pct":[60.2,46.9,65.9,62.7],"comb_di":[2711,4110,4208,4594],"comb_ta":[1740,2856,3016,3178],"comb_di_pct":[60.9,59.0,58.2,59.1]},"delivery":{"dates":["2026-03-26","2026-03-27","2026-03-28","2026-03-29"],"day_names":["Thu","Fri","Sat","Sun"],"grab":[790,1550,1229,1918],"foodpanda":[705,856,1158,717],"oddle":[104,300,380,375],"deliveroo":[0,0,0,0],"otc":[141,150,250,168],"total_ta":[1740,2856,3016,3178]},"dayparts":{"dates":["2026-03-26","2026-03-27","2026-03-28","2026-03-29"],"day_names":["Thu","Fri","Sat","Sun"],"lunch":[1259.3,1366.81,2710.91,2806.13],"lunch_pct":[28.3,19.6,37.5,36.1],"tea":[794.09,436.4,1207.21,1757.82],"tea_pct":[17.8,6.3,16.7,22.6],"dinner":[2397.67,5163.19,3306.76,3208.01],"dinner_pct":[53.9,74.1,45.8,41.3],"net_total":[4451.06,6966.4,7224.88,7771.96]},"turns":{"dates":["2026-03-26","2026-03-27","2026-03-28","2026-03-29"],"day_names":["Thu","Fri","Sat","Sun"],"dg_covers":[69,86,53,74],"dg_turns":[0.69,0.86,0.53,0.74],"sv_covers":[58,71,138,139],"sv_turns":[0.66,0.81,1.57,1.58]},"payments":{"dates":["2026-03-26","2026-03-27","2026-03-28","2026-03-29"],"day_names":["Thu","Fri","Sat","Sun"],"credit_card":[3217.92,5091.88,5265.6,5541.15],"cash":[185.85,0,52.75,150.8],"delivery_platforms":[1743.33,2958.5,3015.5,3280.35],"total_collected":[5147.1,8050.38,8333.85,8972.3]},"menu":{"categories":["Pizza","Pasta","Starters","Kids Meals","Drinks & Beverages","Set Meals","Delivery Bundles","Salads","Beer","Desserts","Wine"],"dg":[6394.75,1315.79,1091.28,869.49,508.95,564.4,531.39,164.96,356.0,115.0,46.0],"sv":[8190.81,2187.51,1294.29,1015.91,408.22,256.7,259.24,396.84,159.9,110.77,31.77],"combined":[14585.56,3503.3,2385.57,1885.4,917.17,821.1,790.63,561.8,515.9,225.77,77.77],"pct":[55.5,13.3,9.1,7.2,3.5,3.1,3.0,2.1,2.0,0.9,0.3]},"kpi":{"total_revenue":27793,"total_gst":2501,"total_dg":12555,"total_sv":15238,"total_di":15624,"total_ta":10791,"di_pct":59.1,"total_covers_dg":282,"total_covers_sv":406,"avg_covers_dg":70,"avg_covers_sv":102,"avg_turns_dg":0.7,"avg_turns_sv":1.15,"n_days":4,"delivery_totals":{"Grab":5487,"FoodPanda":3436,"Oddle":1159,"Deliveroo":0,"OTC":709}},"highlights":[]},{"key":-4,"label":"23 Feb \u2013 1 Mar 2026","monday":"2026-02-23","partial":true,"days_with_data":["2026-02-26","2026-02-27","2026-02-28"],"num_days":3,"daily":{"dates":["2026-02-26","2026-02-27","2026-02-28"],"day_names":["Thu","Fri","Sat"],"date_labels":["26-Feb","27-Feb","28-Feb"],"dg":[1307,4099,3956],"sv":[2079,3252,5136],"combined":[3386,7351,9092],"gst":[305,662,818]},"dita":{"dates":["2026-02-26","2026-02-27","2026-02-28"],"day_names":["Thu","Fri","Sat"],"dg_di":[773,2678,2154],"dg_ta":[457,1156,1586],"dg_di_pct":[62.9,69.8,57.6],"sv_di":[1440,1470,2738],"sv_ta":[495,1635,2125],"sv_di_pct":[74.4,47.3,56.3],"comb_di":[2213,4147,4892],"comb_ta":[952,2791,3711],"comb_di_pct":[69.9,59.8,56.9]},"delivery":{"dates":["2026-02-26","2026-02-27","2026-02-28"],"day_names":["Thu","Fri","Sat"],"grab":[148,1045,1292],"foodpanda":[307,528,994],"oddle":[365,971,964],"deliveroo":[0,0,0],"otc":[132,247,461],"total_ta":[952,2791,3711]},"dayparts":{"dates":["2026-02-26","2026-02-27","2026-02-28"],"day_names":["Thu","Fri","Sat"],"lunch":[599.73,1745.71,1857.12],"lunch_pct":[18.9,25.2,21.6],"tea":[521.92,936.85,1036.05],"tea_pct":[16.5,13.5,12.0],"dinner":[2043.2,4256.12,5710.03],"dinner_pct":[64.6,61.3,66.4],"net_total":[3164.85,6938.68,8603.2]},"turns":{"dates":["2026-02-26","2026-02-27","2026-02-28"],"day_names":["Thu","Fri","Sat"],"dg_covers":[32,86,82],"dg_turns":[0.32,0.86,0.82],"sv_covers":[57,70,127],"sv_turns":[0.65,0.8,1.44]},"payments":{"dates":["2026-02-26","2026-02-27","2026-02-28"],"day_names":["Thu","Fri","Sat"],"credit_card":[2607.85,5014.99,6198.82],"cash":[189.15,224.05,169.05],"delivery_platforms":[893.92,2782.21,3551.89],"total_collected":[3690.92,8021.25,9919.76]},"menu":{"categories":["Pizza","Pasta","Starters","Delivery Bundles","Drinks & Beverages","Set Meals","Kids Meals","Salads","Beer","Desserts","Wine"],"dg":[4444.84,1238.56,790.51,684.9,386.26,357.2,176.4,167.49,270.0,112.1,104.0],"sv":[5332.2,1206.77,1024.14,568.18,288.66,220.9,394.12,354.98,234.59,164.0,63.7],"combined":[9777.04,2445.33,1814.65,1253.08,674.92,578.1,570.52,522.47,504.59,276.1,167.7],"pct":[52.6,13.2,9.8,6.7,3.6,3.1,3.1,2.8,2.7,1.5,0.9]},"kpi":{"total_revenue":19829,"total_gst":1785,"total_dg":9362,"total_sv":10467,"total_di":11252,"total_ta":7455,"di_pct":60.2,"total_covers_dg":200,"total_covers_sv":254,"avg_covers_dg":67,"avg_covers_sv":85,"avg_turns_dg":0.67,"avg_turns_sv":0.96,"n_days":3,"delivery_totals":{"Grab":2485,"FoodPanda":1829,"Oddle":2300,"Deliveroo":0,"OTC":840}},"highlights":[]}];
+
+var CH = {};
+var activePane = 'daily';
+
+function $(id) { return document.getElementById(id); }
+function num(v) { return v.toLocaleString('en-US'); }
+function pct(v) { return v.toFixed(1) + '%'; }
+function dol(v) { return '$' + num(v); }
+function cls(day) { return day === 'Fri' ? 'fri' : day === 'Sat' ? 'sat' : day === 'Sun' ? 'sun' : ''; }
+
 function sw(n, btn) {
   document.querySelectorAll('.pane').forEach(function(e){ e.classList.remove('on'); });
   document.querySelectorAll('.tab').forEach(function(e){ e.classList.remove('on'); });
-  document.getElementById('pane-' + n).classList.add('on');
+  $('pane-' + n).classList.add('on');
   btn.classList.add('on');
-  if (n === 'daily' && !C.d) bD();
-  if (n === 'dita'  && !C.t) bT();
-  if (n === 'dp'    && !C.p) bP();
+  activePane = n;
+  renderCharts();
 }
 
-function bD() {
-  C.d = new Chart(document.getElementById('ch-d'), {
+function initSelectors() {
+  var wkSel = $('wk-sel');
+  var cmpSel = $('cmp-sel');
+  wkSel.innerHTML = '';
+  cmpSel.innerHTML = '';
+  WEEKS.forEach(function(w, i) {
+    var lbl = (i === 0 ? 'This Week: ' : 'Week ' + w.key + ': ') + w.label;
+    if (w.partial) lbl += ' (partial)';
+    wkSel.options.add(new Option(lbl, i));
+    cmpSel.options.add(new Option(lbl, i));
+  });
+  cmpSel.options.add(new Option('— None —', -1));
+  if (WEEKS.length > 1) cmpSel.value = '1';
+  else cmpSel.value = '-1';
+}
+
+function getWeek() { return WEEKS[parseInt($('wk-sel').value)]; }
+function getCmp() {
+  var v = parseInt($('cmp-sel').value);
+  return v >= 0 ? WEEKS[v] : null;
+}
+
+var dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function loadWeek() {
+  var w = getWeek();
+  var c = getCmp();
+  renderHeader(w, c);
+  renderDaily(w, c);
+  renderKH(w, c);
+  renderDITA(w, c);
+  renderDP(w, c);
+  renderTurns(w, c);
+  renderPay(w, c);
+  renderMenu(w, c);
+  renderCharts();
+}
+
+function renderHeader(w, c) {
+  var n = w.num_days;
+  var sub = w.label;
+  if (n === 7) sub += ' · Full week';
+  else if (n > 0) sub += ' · ' + dayNames[0] + (n > 1 ? '–' + dayNames[n-1] : '') + ' complete · ' + dayNames[n] + '–Sun pending';
+  else sub += ' · No data yet';
+  $('hdr-sub').textContent = sub;
+  $('hdr-files').textContent = (n * 2) + ' daily POS files (DG + SV)';
+}
+
+function pendCell() { return '<td class="pend">\u2014</td>'; }
+function pendCells(n) { var s = ''; for (var i = 0; i < n; i++) s += pendCell(); return s; }
+
+function renderDaily(w, c) {
+  var d = w.daily;
+  var cd = c ? c.daily : null;
+  $('daily-sec').textContent = 'Daily revenue (Net Sales + SC) \u2014 ' + w.label + (c ? ' vs ' + c.label : '');
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var dn = dayNames[i];
+    var rc = cls(dn);
+    if (i < d.dates.length) {
+      var dg = d.dg[i], sv = d.sv[i], comb = d.combined[i], gst = d.gst[i];
+      var cmpVal = (cd && i < cd.combined.length) ? cd.combined[i] : null;
+      var variance = cmpVal !== null ? comb - cmpVal : null;
+      var varPct = (cmpVal !== null && cmpVal > 0) ? (variance / cmpVal * 100) : null;
+      html += '<tr' + (rc ? ' class="' + rc + '"' : '') + '>';
+      html += '<td>' + dn + '</td>';
+      html += '<td>' + d.date_labels[i] + (cd && i < cd.date_labels.length ? ' / ' + cd.date_labels[i] : '') + '</td>';
+      html += '<td class="dg">' + num(dg) + '</td>';
+      html += '<td class="sv">' + num(sv) + '</td>';
+      html += '<td><strong>' + num(comb) + '</strong></td>';
+      html += '<td>' + (cmpVal !== null ? num(cmpVal) : '<span class="na">\u2014</span>') + '</td>';
+      if (variance !== null) {
+        var vc = variance >= 0 ? 'pos' : 'neg';
+        html += '<td class="' + vc + '">' + (variance >= 0 ? '+' : '') + num(variance) + '</td>';
+        html += '<td class="' + vc + '">' + (varPct >= 0 ? '+' : '') + varPct.toFixed(1) + '%</td>';
+      } else {
+        html += '<td class="na">\u2014</td><td class="na">\u2014</td>';
+      }
+      html += '<td>' + num(gst) + '</td>';
+      html += '</tr>';
+    } else {
+      // Pending day
+      var cmpVal2 = (cd && i < cd.combined.length) ? cd.combined[i] : null;
+      html += '<tr' + (rc ? ' class="' + rc + '"' : '') + '>';
+      html += '<td>' + dn + '</td>';
+      html += '<td class="pend">' + (cd && i < cd.date_labels.length ? cd.date_labels[i] : '') + '</td>';
+      html += '<td class="pend">pending</td><td class="pend">pending</td><td class="pend">\u2014</td>';
+      html += '<td>' + (cmpVal2 !== null ? num(cmpVal2) : '<span class="na">\u2014</span>') + '</td>';
+      html += '<td class="na">\u2014</td><td class="na">\u2014</td><td class="na">\u2014</td>';
+      html += '</tr>';
+    }
+  }
+  // Total row
+  var totDG = d.dg.reduce(function(a,b){return a+b},0);
+  var totSV = d.sv.reduce(function(a,b){return a+b},0);
+  var totC = d.combined.reduce(function(a,b){return a+b},0);
+  var totG = d.gst.reduce(function(a,b){return a+b},0);
+  var cmpTot = cd ? cd.combined.reduce(function(a,b){return a+b},0) : null;
+  var nDays = d.dates.length;
+  var totLabel = nDays === 7 ? '7-day total' : dayNames[0] + (nDays > 1 ? '–' + dayNames[nDays-1] : '') + ' so far';
+  html += '<tr class="tot"><td></td><td>' + totLabel + '</td>';
+  html += '<td class="dg">' + num(totDG) + '</td><td class="sv">' + num(totSV) + '</td>';
+  html += '<td>' + num(totC) + '</td>';
+  html += '<td>' + (cmpTot !== null ? num(cmpTot) : '') + '</td>';
+  if (cmpTot !== null && nDays === 7) {
+    var tv = totC - cmpTot;
+    var tp = cmpTot > 0 ? (tv / cmpTot * 100) : 0;
+    var tvc = tv >= 0 ? 'pos' : 'neg';
+    html += '<td class="' + tvc + '">' + (tv >= 0 ? '+' : '') + num(tv) + '</td>';
+    html += '<td class="' + tvc + '">' + (tp >= 0 ? '+' : '') + tp.toFixed(1) + '%</td>';
+  } else {
+    html += '<td class="na">\u2014</td><td class="na">\u2014</td>';
+  }
+  html += '<td>' + num(totG) + '</td></tr>';
+  $('daily-tbody').innerHTML = html;
+  $('daily-notice').textContent = 'Revenue = Net Sales + Service Charge (excl. GST). GST collected separately as balance sheet liability.';
+}
+
+function renderKH(w, c) {
+  var k = w.kpi;
+  $('kh-note').innerHTML = 'Revenue = Net Sales + Service Charge (excl. GST). GST: <strong>' + dol(k.total_gst) + '</strong> collected separately as balance sheet liability.';
+  var nDays = w.num_days;
+  $('kh-sec1').textContent = w.label + ' \u2014 ' + (nDays === 7 ? 'full 7-day summary' : nDays + ' day' + (nDays > 1 ? 's' : '') + ' so far');
+
+  var cards = '';
+  cards += '<div class="kc"><div class="kl">Revenue (' + nDays + 'd)</div><div class="kv">' + dol(k.total_revenue) + '</div></div>';
+  cards += '<div class="kc"><div class="kl">DG Revenue</div><div class="kv">' + dol(k.total_dg) + '</div></div>';
+  cards += '<div class="kc"><div class="kl">SV Revenue</div><div class="kv">' + dol(k.total_sv) + '</div></div>';
+  cards += '<div class="kc"><div class="kl">DI net sales</div><div class="kv">' + dol(k.total_di) + '</div><div class="ks">' + pct(k.di_pct) + ' of net</div></div>';
+  cards += '<div class="kc"><div class="kl">TA net sales</div><div class="kv">' + dol(k.total_ta) + '</div><div class="ks">' + pct(100 - k.di_pct) + '</div></div>';
+  cards += '<div class="kc"><div class="kl">DI covers</div><div class="kv">' + num(k.total_covers_dg + k.total_covers_sv) + '</div><div class="ks">DG ' + k.total_covers_dg + ' (' + k.avg_turns_dg.toFixed(2) + '\u00d7) · SV ' + k.total_covers_sv + ' (' + k.avg_turns_sv.toFixed(2) + '\u00d7)</div></div>';
+  $('kh-cards').innerHTML = cards;
+
+  if (c) {
+    var ck = c.kpi;
+    $('kh-sec2').textContent = 'Compare: ' + c.label + ' \u2014 ' + (c.num_days === 7 ? 'full 7-day summary' : c.num_days + ' days');
+    $('kh-sec2').style.display = '';
+    var cCards = '';
+    cCards += '<div class="kc"><div class="kl">Revenue (' + c.num_days + 'd)</div><div class="kv">' + dol(ck.total_revenue) + '</div></div>';
+    cCards += '<div class="kc"><div class="kl">DI net sales</div><div class="kv">' + dol(ck.total_di) + '</div><div class="ks">' + pct(ck.di_pct) + ' of net</div></div>';
+    cCards += '<div class="kc"><div class="kl">TA net sales</div><div class="kv">' + dol(ck.total_ta) + '</div></div>';
+    var dt = ck.delivery_totals;
+    if (dt.Grab > 0) cCards += '<div class="kc"><div class="kl">Grab</div><div class="kv">' + dol(dt.Grab) + '</div></div>';
+    if (dt.Oddle > 0) cCards += '<div class="kc"><div class="kl">Oddle</div><div class="kv">' + dol(dt.Oddle) + '</div></div>';
+    cCards += '<div class="kc"><div class="kl">DI covers</div><div class="kv">' + num(ck.total_covers_dg + ck.total_covers_sv) + '</div><div class="ks">DG ' + ck.total_covers_dg + ' avg ' + ck.avg_covers_dg + '/d · SV ' + ck.total_covers_sv + ' avg ' + ck.avg_covers_sv + '/d</div></div>';
+    $('kh-cmp-cards').innerHTML = cCards;
+    $('kh-cmp-cards').style.display = '';
+  } else {
+    $('kh-sec2').style.display = 'none';
+    $('kh-cmp-cards').style.display = 'none';
+    $('kh-cmp-cards').innerHTML = '';
+  }
+
+  // Highlights
+  if (w.highlights && w.highlights.length > 0) {
+    $('kh-sec3').style.display = '';
+    $('kh-sec3').textContent = '5 key takeaways \u2014 ' + w.label;
+    var hl = '';
+    w.highlights.forEach(function(h) { hl += '<li>' + h + '</li>'; });
+    $('kh-list').innerHTML = hl;
+  } else {
+    $('kh-sec3').style.display = 'none';
+    $('kh-list').innerHTML = '<li>Highlights will be generated by the nightly update for the current week.</li>';
+  }
+}
+
+function renderDITA(w, c) {
+  var d = w.dita;
+  $('dita-sec1').textContent = 'DI vs TA split (net sales) \u2014 ' + w.label;
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var dn = dayNames[i];
+    var rc = cls(dn);
+    if (i < d.dates.length) {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '>';
+      html += '<td>' + d.dates[i].slice(5) + '</td><td>' + dn + '</td>';
+      html += '<td class="dg">' + num(d.dg_di[i]) + '</td><td class="dg">' + num(d.dg_ta[i]) + '</td><td>' + pct(d.dg_di_pct[i]) + '</td>';
+      html += '<td class="sv">' + num(d.sv_di[i]) + '</td><td class="sv">' + num(d.sv_ta[i]) + '</td><td>' + pct(d.sv_di_pct[i]) + '</td>';
+      html += '<td>' + num(d.comb_di[i]) + '</td><td>' + num(d.comb_ta[i]) + '</td><td>' + pct(d.comb_di_pct[i]) + '</td>';
+      html += '</tr>';
+    } else {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '><td class="pend">' + dn + '</td><td class="pend">' + dn + '</td>' + pendCells(9) + '</tr>';
+    }
+  }
+  // Total
+  var tdi = d.comb_di.reduce(function(a,b){return a+b},0);
+  var tta = d.comb_ta.reduce(function(a,b){return a+b},0);
+  var nDays = d.dates.length;
+  var totLabel = nDays === 7 ? '7-day total' : dayNames[0] + (nDays > 1 ? '–' + dayNames[nDays-1] : '') + ' so far';
+  html += '<tr class="tot"><td></td><td>' + totLabel + '</td>';
+  html += '<td class="dg">' + num(d.dg_di.reduce(function(a,b){return a+b},0)) + '</td>';
+  html += '<td class="dg">' + num(d.dg_ta.reduce(function(a,b){return a+b},0)) + '</td>';
+  var dg_tdi = d.dg_di.reduce(function(a,b){return a+b},0), dg_tta = d.dg_ta.reduce(function(a,b){return a+b},0);
+  html += '<td>' + ((dg_tdi+dg_tta)>0 ? pct(dg_tdi/(dg_tdi+dg_tta)*100) : '\u2014') + '</td>';
+  html += '<td class="sv">' + num(d.sv_di.reduce(function(a,b){return a+b},0)) + '</td>';
+  html += '<td class="sv">' + num(d.sv_ta.reduce(function(a,b){return a+b},0)) + '</td>';
+  var sv_tdi = d.sv_di.reduce(function(a,b){return a+b},0), sv_tta = d.sv_ta.reduce(function(a,b){return a+b},0);
+  html += '<td>' + ((sv_tdi+sv_tta)>0 ? pct(sv_tdi/(sv_tdi+sv_tta)*100) : '\u2014') + '</td>';
+  html += '<td>' + num(tdi) + '</td><td>' + num(tta) + '</td>';
+  html += '<td>' + ((tdi+tta)>0 ? pct(tdi/(tdi+tta)*100) : '\u2014') + '</td>';
+  html += '</tr>';
+  $('dita-tbody').innerHTML = html;
+
+  // Delivery table (compare week or same week)
+  var dw = c || w;
+  var del = dw.delivery;
+  $('dita-sec2').textContent = (c ? 'Compare: ' : '') + dw.label + ' \u2014 delivery platform breakdown (net sales)';
+  html = '';
+  for (var i = 0; i < del.dates.length; i++) {
+    var dn2 = del.day_names[i];
+    var rc2 = cls(dn2);
+    html += '<tr' + (rc2 ? ' class="'+rc2+'"' : '') + '>';
+    html += '<td>' + del.dates[i].slice(5) + '</td><td>' + dn2 + '</td>';
+    html += '<td>' + num(del.grab[i]) + '</td><td>' + num(del.foodpanda[i]) + '</td>';
+    html += '<td>' + (del.oddle[i] > 0 ? num(del.oddle[i]) : '<span class="na">\u2014</span>') + '</td>';
+    html += '<td>' + (del.deliveroo[i] > 0 ? num(del.deliveroo[i]) : '<span class="na">\u2014</span>') + '</td>';
+    html += '<td>' + num(del.otc[i]) + '</td><td>' + num(del.total_ta[i]) + '</td>';
+    html += '</tr>';
+  }
+  // Total
+  var gt = del.grab.reduce(function(a,b){return a+b},0);
+  var ft = del.foodpanda.reduce(function(a,b){return a+b},0);
+  var ot = del.oddle.reduce(function(a,b){return a+b},0);
+  var drt = del.deliveroo.reduce(function(a,b){return a+b},0);
+  var oct = del.otc.reduce(function(a,b){return a+b},0);
+  var tat = del.total_ta.reduce(function(a,b){return a+b},0);
+  html += '<tr class="tot"><td></td><td>' + (del.dates.length === 7 ? '7-day total' : 'Total') + '</td>';
+  html += '<td>' + num(gt) + '</td><td>' + num(ft) + '</td>';
+  html += '<td>' + (ot > 0 ? num(ot) : '$0') + '</td>';
+  html += '<td>' + (drt > 0 ? num(drt) : '$0') + '</td>';
+  html += '<td>' + num(oct) + '</td><td>' + num(tat) + '</td></tr>';
+  $('del-tbody').innerHTML = html;
+  $('dita-notice').textContent = '';
+  $('del-notice').textContent = '';
+}
+
+function renderDP(w, c) {
+  var dp = w.dayparts;
+  $('dp-sec1').textContent = 'Day part performance (combined DG + SV, net sales) \u2014 ' + w.label;
+  $('dp-tbody').innerHTML = buildDPTable(dp, w.num_days);
+
+  if (c) {
+    $('dp-sec2').textContent = 'Compare: ' + c.label;
+    $('dp-sec2').style.display = '';
+    $('dp-cmp-tbody').innerHTML = buildDPTable(c.dayparts, c.num_days);
+  } else {
+    $('dp-sec2').style.display = 'none';
+    $('dp-cmp-tbody').innerHTML = '';
+  }
+}
+
+function buildDPTable(dp, nDays) {
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var dn = dayNames[i];
+    var rc = cls(dn);
+    if (i < dp.dates.length) {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '>';
+      html += '<td>' + dp.dates[i].slice(5) + '</td><td>' + dn + '</td>';
+      html += '<td>' + dp.lunch[i].toFixed(2) + '</td><td>' + pct(dp.lunch_pct[i]) + '</td>';
+      html += '<td>' + dp.tea[i].toFixed(2) + '</td><td>' + pct(dp.tea_pct[i]) + '</td>';
+      html += '<td>' + dp.dinner[i].toFixed(2) + '</td><td>' + pct(dp.dinner_pct[i]) + '</td>';
+      html += '<td>' + dp.net_total[i].toFixed(2) + '</td></tr>';
+    } else {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '><td class="pend">' + dn + '</td><td class="pend">' + dn + '</td>' + pendCells(7) + '</tr>';
+    }
+  }
+  // Total
+  var tl = dp.lunch.reduce(function(a,b){return a+b},0);
+  var tt = dp.tea.reduce(function(a,b){return a+b},0);
+  var td2 = dp.dinner.reduce(function(a,b){return a+b},0);
+  var tn = dp.net_total.reduce(function(a,b){return a+b},0);
+  var nD = dp.dates.length;
+  var totLabel = nD === 7 ? '7-day total' : dayNames[0] + (nD > 1 ? '–' + dayNames[nD-1] : '') + ' so far';
+  html += '<tr class="tot"><td></td><td>' + totLabel + '</td>';
+  html += '<td>' + tl.toFixed(2) + '</td><td>' + (tn > 0 ? pct(tl/tn*100) : '\u2014') + '</td>';
+  html += '<td>' + tt.toFixed(2) + '</td><td>' + (tn > 0 ? pct(tt/tn*100) : '\u2014') + '</td>';
+  html += '<td>' + td2.toFixed(2) + '</td><td>' + (tn > 0 ? pct(td2/tn*100) : '\u2014') + '</td>';
+  html += '<td>' + tn.toFixed(2) + '</td></tr>';
+  return html;
+}
+
+function renderTurns(w, c) {
+  var t = w.turns;
+  $('turns-sec1').textContent = 'Table turns (DG capacity 100 · SV capacity 88) \u2014 ' + w.label;
+  $('turns-tbody').innerHTML = buildTurnsTable(t, w.num_days);
+  if (c) {
+    $('turns-sec2').textContent = 'Compare: ' + c.label;
+    $('turns-sec2').style.display = '';
+    $('turns-cmp-tbody').innerHTML = buildTurnsTable(c.turns, c.num_days);
+  } else {
+    $('turns-sec2').style.display = 'none';
+    $('turns-cmp-tbody').innerHTML = '';
+  }
+}
+
+function buildTurnsTable(t, nDays) {
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var dn = dayNames[i];
+    var rc = cls(dn);
+    if (i < t.dates.length) {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '>';
+      html += '<td>' + t.dates[i].slice(5) + '</td><td>' + dn + '</td>';
+      html += '<td class="dg">' + t.dg_covers[i] + '</td><td class="dg">' + t.dg_turns[i].toFixed(2) + '\u00d7</td>';
+      html += '<td class="sv">' + t.sv_covers[i] + '</td><td class="sv">' + t.sv_turns[i].toFixed(2) + '\u00d7</td>';
+      html += '</tr>';
+    } else {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '><td class="pend">' + dn + '</td><td class="pend">' + dn + '</td>' + pendCells(4) + '</tr>';
+    }
+  }
+  var tdc = t.dg_covers.reduce(function(a,b){return a+b},0);
+  var tsc = t.sv_covers.reduce(function(a,b){return a+b},0);
+  var nD = t.dates.length;
+  var totLabel = nD === 7 ? '7-day avg' : dayNames[0] + (nD > 1 ? '–' + dayNames[nD-1] : '') + ' so far';
+  html += '<tr class="tot"><td></td><td>' + totLabel + '</td>';
+  html += '<td class="dg">' + tdc + ' total</td><td class="dg">' + (nD > 0 ? (tdc/(nD*100)).toFixed(2) : '0.00') + '\u00d7 avg</td>';
+  html += '<td class="sv">' + tsc + ' total</td><td class="sv">' + (nD > 0 ? (tsc/(nD*88)).toFixed(2) : '0.00') + '\u00d7 avg</td>';
+  html += '</tr>';
+  return html;
+}
+
+function renderPay(w, c) {
+  var p = w.payments;
+  $('pay-sec1').textContent = 'Payment method breakdown \u2014 ' + w.label;
+  $('pay-tbody').innerHTML = buildPayTable(p, w.num_days);
+  if (c) {
+    $('pay-sec2').textContent = 'Compare: ' + c.label;
+    $('pay-sec2').style.display = '';
+    $('pay-cmp-tbody').innerHTML = buildPayTable(c.payments, c.num_days);
+  } else {
+    $('pay-sec2').style.display = 'none';
+    $('pay-cmp-tbody').innerHTML = '';
+  }
+}
+
+function buildPayTable(p, nDays) {
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var dn = dayNames[i];
+    var rc = cls(dn);
+    if (i < p.dates.length) {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '>';
+      html += '<td>' + p.dates[i].slice(5) + '</td><td>' + dn + '</td>';
+      html += '<td>' + p.credit_card[i].toFixed(2) + '</td><td>' + p.cash[i].toFixed(2) + '</td>';
+      html += '<td>' + p.delivery_platforms[i].toFixed(2) + '</td><td>' + p.total_collected[i].toFixed(2) + '</td>';
+      html += '</tr>';
+    } else {
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '><td class="pend">' + dn + '</td><td class="pend">' + dn + '</td>' + pendCells(4) + '</tr>';
+    }
+  }
+  var tcc = p.credit_card.reduce(function(a,b){return a+b},0);
+  var tca = p.cash.reduce(function(a,b){return a+b},0);
+  var tdp = p.delivery_platforms.reduce(function(a,b){return a+b},0);
+  var ttc = p.total_collected.reduce(function(a,b){return a+b},0);
+  var nD = p.dates.length;
+  var totLabel = nD === 7 ? '7-day total' : dayNames[0] + (nD > 1 ? '–' + dayNames[nD-1] : '') + ' total';
+  html += '<tr class="tot"><td></td><td>' + totLabel + '</td>';
+  html += '<td>' + tcc.toFixed(2) + '</td><td>' + tca.toFixed(2) + '</td>';
+  html += '<td>' + tdp.toFixed(2) + '</td><td>' + ttc.toFixed(2) + '</td></tr>';
+  return html;
+}
+
+function renderMenu(w, c) {
+  var m = w.menu;
+  $('menu-sec1').textContent = 'Menu categories \u2014 ' + w.label + ' (' + w.num_days + ' day' + (w.num_days > 1 ? 's' : '') + ')';
+  $('menu-tbody').innerHTML = buildMenuTable(m);
+  if (c) {
+    $('menu-sec2').textContent = 'Compare: ' + c.label + ' (' + c.num_days + ' days)';
+    $('menu-sec2').style.display = '';
+    $('menu-cmp-tbody').innerHTML = buildMenuTable(c.menu);
+  } else {
+    $('menu-sec2').style.display = 'none';
+    $('menu-cmp-tbody').innerHTML = '';
+  }
+}
+
+function buildMenuTable(m) {
+  var html = '';
+  for (var i = 0; i < m.categories.length; i++) {
+    html += '<tr>';
+    html += '<td>' + (i + 1) + '</td><td>' + m.categories[i] + '</td>';
+    html += '<td class="dg">' + m.dg[i].toFixed(2) + '</td>';
+    html += '<td class="sv">' + (m.sv[i] > 0 ? m.sv[i].toFixed(2) : '\u2014') + '</td>';
+    html += '<td><strong>' + m.combined[i].toFixed(2) + '</strong></td>';
+    html += '<td>' + pct(m.pct[i]) + '</td>';
+    html += '</tr>';
+  }
+  var tdg = m.dg.reduce(function(a,b){return a+b},0);
+  var tsv = m.sv.reduce(function(a,b){return a+b},0);
+  var tc = m.combined.reduce(function(a,b){return a+b},0);
+  html += '<tr class="tot"><td></td><td>Total</td>';
+  html += '<td class="dg">' + tdg.toFixed(2) + '</td>';
+  html += '<td class="sv">' + tsv.toFixed(2) + '</td>';
+  html += '<td>' + tc.toFixed(2) + '</td><td>\u2014</td></tr>';
+  return html;
+}
+
+function renderCharts() {
+  var w = getWeek();
+  var c = getCmp();
+  if (activePane === 'daily') buildDailyChart(w, c);
+  else if (activePane === 'dita') buildDeliveryChart(c || w);
+  else if (activePane === 'dp') buildDPChart(c || w);
+}
+
+function buildDailyChart(w, c) {
+  if (CH.d) CH.d.destroy();
+  var labels = [];
+  var twData = [];
+  var cwData = [];
+  for (var i = 0; i < 7; i++) {
+    labels.push(dayNames[i]);
+    twData.push(i < w.daily.combined.length ? w.daily.combined[i] : null);
+    cwData.push(c && i < c.daily.combined.length ? c.daily.combined[i] : null);
+  }
+  var datasets = [
+    { label: w.label, data: twData, backgroundColor: '#C41230', borderRadius: 4 }
+  ];
+  if (c) datasets.push({ label: c.label, data: cwData, backgroundColor: '#BA7517', borderRadius: 4 });
+  CH.d = new Chart($('ch-d'), {
     type: 'bar',
-    data: {
-      labels: ['Mon (Apr 13/6)', 'Tue (14/7)', 'Wed (15/8)', 'Thu (16/9)', 'Fri (17/10)', 'Sat (18/11)', 'Sun (19/12)'],
-      datasets: [
-        { label: 'This Week', data: [2,861, null, null, null, null, null, null], backgroundColor: '#C41230', borderRadius: 4 },
-        { label: 'Last Week', data: [2,796, 3,825, 4,542, 4,341, 6,609, 8,148, 8,772], backgroundColor: '#BA7517', borderRadius: 4 }
-      ]
-    },
+    data: { labels: labels, datasets: datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10, padding: 12 } } },
@@ -382,26 +655,41 @@ function bD() {
   });
 }
 
-function bT() {
-  C.t = new Chart(document.getElementById('ch-t'), {
+function buildDeliveryChart(w) {
+  if (CH.t) CH.t.destroy();
+  var dt = w.kpi.delivery_totals;
+  var total = dt.Grab + dt.FoodPanda + dt.Oddle + dt.OTC + dt.Deliveroo;
+  if (total === 0) return;
+  var labels = [];
+  var data = [];
+  var colors = [];
+  var colorMap = { Grab: '#185FA5', FoodPanda: '#C41230', Oddle: '#3B6D11', OTC: '#BA7517', Deliveroo: '#666' };
+  ['Grab', 'FoodPanda', 'Oddle', 'OTC', 'Deliveroo'].forEach(function(k) {
+    if (dt[k] > 0) {
+      labels.push(k + ' ' + (dt[k]/total*100).toFixed(1) + '%');
+      data.push(dt[k]);
+      colors.push(colorMap[k]);
+    }
+  });
+  CH.t = new Chart($('ch-t'), {
     type: 'doughnut',
-    data: {
-      labels: ['Grab 42.5%', 'FoodPanda 24.1%', 'Oddle 23.7%', 'OTC 9.7%'],
-      datasets: [{ data: [6,437, 3,660, 3,593, 1,474], backgroundColor: ['#185FA5','#C41230','#3B6D11','#BA7517'], borderWidth: 0 }]
-    },
+    data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } } } }
   });
 }
 
-function bP() {
-  C.p = new Chart(document.getElementById('ch-p'), {
+function buildDPChart(w) {
+  if (CH.p) CH.p.destroy();
+  var dp = w.dayparts;
+  if (dp.dates.length === 0) return;
+  CH.p = new Chart($('ch-p'), {
     type: 'bar',
     data: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      labels: dp.day_names,
       datasets: [
-        { label: 'Lunch',  data: [979.14, 1553.30, 1027.20, 1226.81, 971.30, 1929.72, 3123.62], backgroundColor: '#185FA5', borderRadius: 3 },
-        { label: 'Tea',    data: [384.06, 510.53, 357.39, 170.88, 757.11, 1686.57, 1424.25], backgroundColor: '#B8860B', borderRadius: 3 },
-        { label: 'Dinner', data: [1253.56, 1516.21, 2885.61, 2685.27, 4486.63, 4146.58, 3809.86], backgroundColor: '#C41230', borderRadius: 3 }
+        { label: 'Lunch', data: dp.lunch, backgroundColor: '#185FA5', borderRadius: 3 },
+        { label: 'Tea', data: dp.tea, backgroundColor: '#B8860B', borderRadius: 3 },
+        { label: 'Dinner', data: dp.dinner, backgroundColor: '#C41230', borderRadius: 3 }
       ]
     },
     options: {
@@ -415,7 +703,10 @@ function bP() {
   });
 }
 
-window.addEventListener('load', function(){ bD(); });
+window.addEventListener('load', function() {
+  initSelectors();
+  loadWeek();
+});
 </script>
 </body>
 </html>
