@@ -70,7 +70,7 @@ jobs:
 
       - name: Run Revenue Agent (Claude)
         if: steps.fetch.outputs.skip != 'true' && steps.gate.outputs.skip != 'true'
-        uses: anthropics/claude-code-base-action@v1
+        uses: anthropics/claude-code-base-action@v0.0.63
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
