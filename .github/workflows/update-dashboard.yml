@@ -1,0 +1,112 @@
+name: Update weekly dashboard
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 23:30 SGT = 15:30 UTC, ~2 hours after POS files typically arrive (~21:00 SGT)
+    - cron: '30 15 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-dashboard
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install Python deps
+        run: pip install -r scripts/requirements.txt
+
+      - name: Fetch latest POS files from OneDrive
+        id: fetch
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ONEDRIVE_USER_EMAIL: ${{ secrets.ONEDRIVE_USER_EMAIL }}
+          ONEDRIVE_FOLDER_PATH: ${{ secrets.ONEDRIVE_FOLDER_PATH }}
+        run: |
+          set -e
+          if date=$(python scripts/fetch_pos_files.py); then
+            echo "report_date=$date" >> "$GITHUB_OUTPUT"
+            echo "Report date: $date"
+          else
+            rc=$?
+            if [ "$rc" = "2" ]; then
+              echo "No complete day available. Exiting cleanly."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            else
+              exit $rc
+            fi
+          fi
+
+      - name: Skip if already up to date
+        if: steps.fetch.outputs.skip != 'true'
+        id: gate
+        run: |
+          set -e
+          date="${{ steps.fetch.outputs.report_date }}"
+          if git log -1 --pretty=%s | grep -q "$date"; then
+            echo "HEAD commit already covers $date. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Revenue Agent (Claude)
+        if: steps.fetch.outputs.skip != 'true' && steps.gate.outputs.skip != 'true'
+        uses: anthropics/claude-code-base-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are the Revenue Agent for PizzaExpress Singapore.
+
+            The 4 POS Excel files for report date ${{ steps.fetch.outputs.report_date }}
+            have been downloaded into the ./pos_inbox/ folder:
+
+              - PE @ Duo Galleria_dailyReport_${{ steps.fetch.outputs.report_date }}.xlsx
+              - PE @ Duo Galleria_menuItemReport_${{ steps.fetch.outputs.report_date }}.xlsx
+              - PE @ Star Vista_dailyReport_${{ steps.fetch.outputs.report_date }}.xlsx
+              - PE @ Star Vista_menuItemReport_${{ steps.fetch.outputs.report_date }}.xlsx
+
+            Your task:
+              1. Read the 4 files and extract the same fields you normally extract
+                 (revenue = net sales + service charge excl. GST, daily breakdown,
+                 DI+TA, delivery, top menu items per category, etc.).
+              2. Update index.html to include ${{ steps.fetch.outputs.report_date }}'s
+                 numbers in the current week's tables. Preserve existing formatting,
+                 embedded JSON, and historical-week selector behaviour.
+              3. Do NOT edit any file other than index.html.
+
+            Keep changes minimal and idempotent.
+          allowed_tools: Read,Edit,Bash(python3:*)
+
+      - name: Commit and push
+        if: steps.fetch.outputs.skip != 'true' && steps.gate.outputs.skip != 'true'
+        run: |
+          set -e
+          date="${{ steps.fetch.outputs.report_date }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- index.html; then
+            echo "index.html unchanged. Nothing to commit."
+            exit 0
+          fi
+          git add index.html
+          git commit -m "Update weekly dashboard — $date"
+          git push origin HEAD:main
