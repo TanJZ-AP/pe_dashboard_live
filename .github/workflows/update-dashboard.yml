@@ -3,8 +3,8 @@ name: Update weekly dashboard
 on:
   workflow_dispatch:
   schedule:
-    # 23:30 SGT = 15:30 UTC, ~2 hours after POS files typically arrive (~21:00 SGT)
-    - cron: '30 15 * * *'
+    # 22:45 SGT = 14:45 UTC, ~1h45m after POS files typically arrive (~21:00 SGT)
+    - cron: '45 14 * * *'
 
 permissions:
   contents: write
