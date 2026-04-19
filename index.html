@@ -176,12 +176,12 @@
 <!-- ── PAYMENT METHODS ── -->
 <div id="pane-pay" class="pane">
   <div class="tab-label">Payment Methods</div>
-  <div class="sc-note">Total Collected = Revenue + GST (what the customer pays).</div>
+  <div class="sc-note">Total Collected = Revenue + GST + Tips &amp; adjustments (what the customer actually pays). Tips &amp; adjustments captures tips, voucher/loyalty redemptions, and cash-rounding.</div>
   <div class="sec" id="pay-sec1"></div>
-  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Collected</th></tr></thead>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Tips &amp; Adj</th><th>Total Collected</th></tr></thead>
   <tbody id="pay-tbody"></tbody></table>
   <div class="sec" style="margin-top:16px" id="pay-sec2"></div>
-  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Total Collected</th></tr></thead>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Credit Card</th><th>Cash</th><th>Delivery Platforms</th><th>Tips &amp; Adj</th><th>Total Collected</th></tr></thead>
   <tbody id="pay-cmp-tbody"></tbody></table>
   <div class="notice" id="pay-notice"></div>
 </div>
@@ -546,41 +546,52 @@ function buildTurnsTable(t, nDays) {
 function renderPay(w, c) {
   var p = w.payments;
   $('pay-sec1').textContent = 'Payment method breakdown \u2014 ' + w.label;
-  $('pay-tbody').innerHTML = buildPayTable(p, w.num_days);
+  $('pay-tbody').innerHTML = buildPayTable(w);
   if (c) {
     $('pay-sec2').textContent = 'Compare: ' + c.label;
     $('pay-sec2').style.display = '';
-    $('pay-cmp-tbody').innerHTML = buildPayTable(c.payments, c.num_days);
+    $('pay-cmp-tbody').innerHTML = buildPayTable(c);
   } else {
     $('pay-sec2').style.display = 'none';
     $('pay-cmp-tbody').innerHTML = '';
   }
 }
 
-function buildPayTable(p, nDays) {
+function buildPayTable(w) {
+  var p = w.payments;
+  var rev = w.daily.combined;
+  var gst = w.daily.gst;
   var html = '';
   for (var i = 0; i < 7; i++) {
     var dn = dayNames[i];
     var rc = cls(dn);
     if (i < p.dates.length) {
+      var tipsAdj = p.total_collected[i] - rev[i] - gst[i];
       html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '>';
       html += '<td>' + p.dates[i].slice(5) + '</td><td>' + dn + '</td>';
       html += '<td>' + num(Math.round(p.credit_card[i])) + '</td><td>' + num(Math.round(p.cash[i])) + '</td>';
-      html += '<td>' + num(Math.round(p.delivery_platforms[i])) + '</td><td>' + num(Math.round(p.total_collected[i])) + '</td>';
+      html += '<td>' + num(Math.round(p.delivery_platforms[i])) + '</td>';
+      html += '<td>' + num(Math.round(tipsAdj)) + '</td>';
+      html += '<td>' + num(Math.round(p.total_collected[i])) + '</td>';
       html += '</tr>';
     } else {
-      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '><td class="pend">' + dn + '</td><td class="pend">' + dn + '</td>' + pendCells(4) + '</tr>';
+      html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '><td class="pend">' + dn + '</td><td class="pend">' + dn + '</td>' + pendCells(5) + '</tr>';
     }
   }
   var tcc = p.credit_card.reduce(function(a,b){return a+b},0);
   var tca = p.cash.reduce(function(a,b){return a+b},0);
   var tdp = p.delivery_platforms.reduce(function(a,b){return a+b},0);
   var ttc = p.total_collected.reduce(function(a,b){return a+b},0);
+  var tRev = rev.reduce(function(a,b){return a+b},0);
+  var tGst = gst.reduce(function(a,b){return a+b},0);
+  var tTipsAdj = ttc - tRev - tGst;
   var nD = p.dates.length;
   var totLabel = nD === 7 ? '7-day total' : dayNames[0] + (nD > 1 ? '–' + dayNames[nD-1] : '') + ' total';
   html += '<tr class="tot"><td></td><td>' + totLabel + '</td>';
   html += '<td>' + num(Math.round(tcc)) + '</td><td>' + num(Math.round(tca)) + '</td>';
-  html += '<td>' + num(Math.round(tdp)) + '</td><td>' + num(Math.round(ttc)) + '</td></tr>';
+  html += '<td>' + num(Math.round(tdp)) + '</td>';
+  html += '<td>' + num(Math.round(tTipsAdj)) + '</td>';
+  html += '<td>' + num(Math.round(ttc)) + '</td></tr>';
   return html;
 }
 
