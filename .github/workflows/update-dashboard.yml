@@ -95,6 +95,15 @@ jobs:
                  embedded JSON, and historical-week selector behaviour.
               3. Do NOT edit any file other than index.html.
 
+            Structural constraints to preserve (do not remove or rename):
+              - Payments table columns: Date, Day, Credit Card, Cash,
+                Delivery Platforms, Tips & Adj, Total Collected.
+              - The "Tips & Adj" column is computed client-side by
+                buildPayTable() as total_collected[i] - daily.combined[i] - daily.gst[i];
+                you only need to populate the underlying JSON fields accurately.
+              - The sc-note under Payment Methods explains the reconciliation
+                (Total Collected = Revenue + GST + Tips & adjustments). Keep it.
+
             Keep changes minimal and idempotent.
           allowed_tools: Read,Edit,Bash(python3:*)
 
