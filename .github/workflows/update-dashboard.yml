@@ -103,6 +103,24 @@ jobs:
                 you only need to populate the underlying JSON fields accurately.
               - The sc-note under Payment Methods explains the reconciliation
                 (Total Collected = Revenue + GST + Tips & adjustments). Keep it.
+              - Key highlights KPI card grid must include these 8 cards in order:
+                Revenue, DG Revenue, SV Revenue, DI net sales, TA net sales,
+                DI covers, Avg spend/head, Avg table turns. The last two are
+                computed client-side from existing kpi fields — do not remove
+                the code that renders them.
+              - Delivery table has NO Deliveroo column and the delivery_totals
+                chart has no Deliveroo segment. Deliveroo is not currently in
+                use at either outlet. You may still include "deliveroo": [0,...]
+                in the delivery JSON for schema stability, but it will not be
+                rendered.
+              - The "Top menu items" section (pane-menu) displays the top 10
+                INDIVIDUAL menu items by combined revenue, not categories.
+                Populate menu.items as an array of up to 10 item names
+                (e.g., "Margherita Pizza", "Spaghetti Vongole"), sorted by
+                menu.combined descending. Keep menu.dg / menu.sv / menu.combined
+                / menu.pct aligned index-for-index with menu.items. The
+                menu.categories field is deprecated; do not emit it for new
+                weeks.
 
             Keep changes minimal and idempotent.
           allowed_tools: Read,Edit,Bash(python3:*)

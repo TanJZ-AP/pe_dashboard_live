@@ -1,0 +1,108 @@
+name: Backfill menu items
+
+on:
+  workflow_dispatch:
+    inputs:
+      mondays:
+        description: 'Comma-separated week-start Mondays (YYYY-MM-DD), e.g. 2026-03-30,2026-04-06,2026-04-13'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-dashboard
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install Python deps
+        run: pip install -r scripts/requirements.txt
+
+      - name: Fetch menuItem files for all requested weeks
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ONEDRIVE_USER_EMAIL: ${{ secrets.ONEDRIVE_USER_EMAIL }}
+          ONEDRIVE_FOLDER_PATH: ${{ secrets.ONEDRIVE_FOLDER_PATH }}
+        run: |
+          mondays="${{ inputs.mondays }}"
+          python scripts/fetch_week_menu_files.py $(echo "$mondays" | tr ',' ' ')
+
+      - name: Run Revenue Agent (Claude) — menu.items backfill
+        uses: anthropics/claude-code-base-action@v0.0.63
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-sonnet-4-6
+          timeout_minutes: 30
+          prompt: |
+            Back-fill `menu.items` for historical weeks in index.html.
+
+            Weeks to back-fill (Monday ISO dates): ${{ inputs.mondays }}
+
+            For each Monday M in that list:
+              1. The menuItemReport xlsx files for that week are in ./pos_inbox/M/
+                 (up to 14 files: 7 days × 2 restaurants named
+                 "PE @ Duo Galleria_menuItemReport_<date>.xlsx" and
+                 "PE @ Star Vista_menuItemReport_<date>.xlsx").
+              2. Aggregate by individual menu item name — sum net sales across
+                 all 7 days for each outlet. "dg" = Duo Galleria total, "sv" =
+                 Star Vista total, "combined" = dg + sv.
+              3. Select the top 10 items by combined revenue (descending).
+              4. In the WEEKS array in index.html, find the entry whose
+                 "monday" field equals M.
+              5. Update that entry's menu block:
+                 - Add/replace "items": array of the 10 item name strings,
+                   sorted descending by combined revenue.
+                 - Replace menu.dg, menu.sv, menu.combined, menu.pct arrays so
+                   they correspond index-for-index with the new items.
+                 - pct[i] = 100 * combined[i] / sum(combined). Round to 1dp.
+                 - Preserve menu.categories (UI falls back to it if items missing).
+              6. Touch NOTHING else in that week's entry — no changes to daily,
+                 dita, delivery, dayparts, turns, payments, kpi, highlights.
+
+            Do not modify any week that is not in the list. Do not edit any file
+            other than index.html. Keep changes minimal and idempotent.
+          allowed_tools: Read,Edit,Bash(python3:*)
+
+      - name: Commit and push
+        id: push
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- index.html; then
+            echo "index.html unchanged. Nothing to commit."
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git add index.html
+          git commit -m "Backfill top-10 menu items for: ${{ inputs.mondays }}"
+          git push origin HEAD:main
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Azure Static Web Apps
+        if: steps.push.outputs.pushed == 'true'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LIVELY_TREE_08A067E1E }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "/"
+          api_location: ""
+          output_location: ""

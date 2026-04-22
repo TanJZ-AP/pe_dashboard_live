@@ -130,7 +130,7 @@
   <tbody id="dita-tbody"></tbody></table>
   <div class="notice" id="dita-notice"></div>
   <div class="sec" style="margin-top:16px" id="dita-sec2"></div>
-  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Grab</th><th>FoodPanda</th><th>Oddle</th><th>Deliveroo</th><th>OTC / Direct</th><th>Total TA</th></tr></thead>
+  <table class="t"><thead><tr><th>Date</th><th>Day</th><th>Grab</th><th>FoodPanda</th><th>Oddle</th><th>OTC / Direct</th><th>Total TA</th></tr></thead>
   <tbody id="del-tbody"></tbody></table>
   <div class="notice" id="del-notice"></div>
   <div class="leg" style="margin-top:16px">
@@ -190,10 +190,10 @@
 <div id="pane-menu" class="pane">
   <div class="tab-label">Top Menu Items</div>
   <div class="sec" id="menu-sec1"></div>
-  <table class="t"><thead><tr><th>#</th><th>Category</th><th>DG</th><th>SV</th><th>Combined</th><th>% of total</th></tr></thead>
+  <table class="t"><thead><tr><th>#</th><th>Item</th><th>DG</th><th>SV</th><th>Combined</th><th>% of net</th></tr></thead>
   <tbody id="menu-tbody"></tbody></table>
   <div class="sec" style="margin-top:16px" id="menu-sec2"></div>
-  <table class="t"><thead><tr><th>#</th><th>Category</th><th>DG</th><th>SV</th><th>Combined</th><th>% of total</th></tr></thead>
+  <table class="t"><thead><tr><th>#</th><th>Item</th><th>DG</th><th>SV</th><th>Combined</th><th>% of net</th></tr></thead>
   <tbody id="menu-cmp-tbody"></tbody></table>
   <div class="notice" id="menu-notice"></div>
 </div>
@@ -352,6 +352,14 @@ function renderKH(w, c) {
   cards += '<div class="kc"><div class="kl">DI net sales</div><div class="kv">' + dol(k.total_di) + '</div><div class="ks">' + pct(k.di_pct) + ' of net</div></div>';
   cards += '<div class="kc"><div class="kl">TA net sales</div><div class="kv">' + dol(k.total_ta) + '</div><div class="ks">' + pct(100 - k.di_pct) + '</div></div>';
   cards += '<div class="kc"><div class="kl">DI covers</div><div class="kv">' + num(k.total_covers_dg + k.total_covers_sv) + '</div><div class="ks">DG ' + k.total_covers_dg + ' (' + k.avg_turns_dg.toFixed(2) + '\u00d7) · SV ' + k.total_covers_sv + ' (' + k.avg_turns_sv.toFixed(2) + '\u00d7)</div></div>';
+  var totCovers = k.total_covers_dg + k.total_covers_sv;
+  var aspHead = totCovers > 0 ? Math.round(k.total_di / totCovers) : 0;
+  cards += '<div class="kc"><div class="kl">Avg spend/head</div><div class="kv">' + dol(aspHead) + '</div><div class="ks">DI net sales ÷ DI covers</div></div>';
+  var combTurns = 0;
+  if (k.avg_turns_dg > 0 && k.avg_turns_sv > 0 && totCovers > 0) {
+    combTurns = totCovers / (k.total_covers_dg / k.avg_turns_dg + k.total_covers_sv / k.avg_turns_sv);
+  }
+  cards += '<div class="kc"><div class="kl">Avg table turns</div><div class="kv">' + combTurns.toFixed(2) + '\u00d7</div><div class="ks">weighted DG + SV, per day</div></div>';
   $('kh-cards').innerHTML = cards;
 
   if (c) {
@@ -366,6 +374,14 @@ function renderKH(w, c) {
     if (dt.Grab > 0) cCards += '<div class="kc"><div class="kl">Grab</div><div class="kv">' + dol(dt.Grab) + '</div></div>';
     if (dt.Oddle > 0) cCards += '<div class="kc"><div class="kl">Oddle</div><div class="kv">' + dol(dt.Oddle) + '</div></div>';
     cCards += '<div class="kc"><div class="kl">DI covers</div><div class="kv">' + num(ck.total_covers_dg + ck.total_covers_sv) + '</div><div class="ks">DG ' + ck.total_covers_dg + ' avg ' + ck.avg_covers_dg + '/d · SV ' + ck.total_covers_sv + ' avg ' + ck.avg_covers_sv + '/d</div></div>';
+    var cTotCovers = ck.total_covers_dg + ck.total_covers_sv;
+    var cAspHead = cTotCovers > 0 ? Math.round(ck.total_di / cTotCovers) : 0;
+    cCards += '<div class="kc"><div class="kl">Avg spend/head</div><div class="kv">' + dol(cAspHead) + '</div><div class="ks">DI net sales ÷ DI covers</div></div>';
+    var cCombTurns = 0;
+    if (ck.avg_turns_dg > 0 && ck.avg_turns_sv > 0 && cTotCovers > 0) {
+      cCombTurns = cTotCovers / (ck.total_covers_dg / ck.avg_turns_dg + ck.total_covers_sv / ck.avg_turns_sv);
+    }
+    cCards += '<div class="kc"><div class="kl">Avg table turns</div><div class="kv">' + cCombTurns.toFixed(2) + '\u00d7</div><div class="ks">weighted DG + SV, per day</div></div>';
     $('kh-cmp-cards').innerHTML = cCards;
     $('kh-cmp-cards').style.display = '';
   } else {
@@ -436,7 +452,6 @@ function renderDITA(w, c) {
     html += '<td>' + del.dates[i].slice(5) + '</td><td>' + dn2 + '</td>';
     html += '<td>' + num(del.grab[i]) + '</td><td>' + num(del.foodpanda[i]) + '</td>';
     html += '<td>' + (del.oddle[i] > 0 ? num(del.oddle[i]) : '<span class="na">\u2014</span>') + '</td>';
-    html += '<td>' + (del.deliveroo[i] > 0 ? num(del.deliveroo[i]) : '<span class="na">\u2014</span>') + '</td>';
     html += '<td>' + num(del.otc[i]) + '</td><td>' + num(del.total_ta[i]) + '</td>';
     html += '</tr>';
   }
@@ -444,13 +459,11 @@ function renderDITA(w, c) {
   var gt = del.grab.reduce(function(a,b){return a+b},0);
   var ft = del.foodpanda.reduce(function(a,b){return a+b},0);
   var ot = del.oddle.reduce(function(a,b){return a+b},0);
-  var drt = del.deliveroo.reduce(function(a,b){return a+b},0);
   var oct = del.otc.reduce(function(a,b){return a+b},0);
   var tat = del.total_ta.reduce(function(a,b){return a+b},0);
   html += '<tr class="tot"><td></td><td>' + (del.dates.length === 7 ? '7-day total' : 'Total') + '</td>';
   html += '<td>' + num(gt) + '</td><td>' + num(ft) + '</td>';
   html += '<td>' + (ot > 0 ? num(ot) : '$0') + '</td>';
-  html += '<td>' + (drt > 0 ? num(drt) : '$0') + '</td>';
   html += '<td>' + num(oct) + '</td><td>' + num(tat) + '</td></tr>';
   $('del-tbody').innerHTML = html;
   $('dita-notice').textContent = '';
@@ -597,7 +610,7 @@ function buildPayTable(w) {
 
 function renderMenu(w, c) {
   var m = w.menu;
-  $('menu-sec1').textContent = 'Menu categories \u2014 ' + w.label + ' (' + w.num_days + ' day' + (w.num_days > 1 ? 's' : '') + ')';
+  $('menu-sec1').textContent = 'Top 10 menu items \u2014 ' + w.label + ' (' + w.num_days + ' day' + (w.num_days > 1 ? 's' : '') + ')';
   $('menu-tbody').innerHTML = buildMenuTable(m);
   if (c) {
     $('menu-sec2').textContent = 'Compare: ' + c.label + ' (' + c.num_days + ' days)';
@@ -610,20 +623,21 @@ function renderMenu(w, c) {
 }
 
 function buildMenuTable(m) {
+  var labels = m.items || m.categories;
+  var n = Math.min(10, labels.length);
   var html = '';
-  for (var i = 0; i < m.categories.length; i++) {
+  for (var i = 0; i < n; i++) {
     html += '<tr>';
-    html += '<td>' + (i + 1) + '</td><td>' + m.categories[i] + '</td>';
+    html += '<td>' + (i + 1) + '</td><td>' + labels[i] + '</td>';
     html += '<td class="dg">' + num(Math.round(m.dg[i])) + '</td>';
     html += '<td class="sv">' + (m.sv[i] > 0 ? num(Math.round(m.sv[i])) : '\u2014') + '</td>';
     html += '<td><strong>' + num(Math.round(m.combined[i])) + '</strong></td>';
     html += '<td>' + pct(m.pct[i]) + '</td>';
     html += '</tr>';
   }
-  var tdg = m.dg.reduce(function(a,b){return a+b},0);
-  var tsv = m.sv.reduce(function(a,b){return a+b},0);
-  var tc = m.combined.reduce(function(a,b){return a+b},0);
-  html += '<tr class="tot"><td></td><td>Total</td>';
+  var tdg = 0, tsv = 0, tc = 0;
+  for (var j = 0; j < n; j++) { tdg += m.dg[j]; tsv += m.sv[j]; tc += m.combined[j]; }
+  html += '<tr class="tot"><td></td><td>Top ' + n + ' total</td>';
   html += '<td class="dg">' + num(Math.round(tdg)) + '</td>';
   html += '<td class="sv">' + num(Math.round(tsv)) + '</td>';
   html += '<td>' + num(Math.round(tc)) + '</td><td>\u2014</td></tr>';
@@ -669,13 +683,13 @@ function buildDailyChart(w, c) {
 function buildDeliveryChart(w) {
   if (CH.t) CH.t.destroy();
   var dt = w.kpi.delivery_totals;
-  var total = dt.Grab + dt.FoodPanda + dt.Oddle + dt.OTC + dt.Deliveroo;
+  var total = dt.Grab + dt.FoodPanda + dt.Oddle + dt.OTC;
   if (total === 0) return;
   var labels = [];
   var data = [];
   var colors = [];
-  var colorMap = { Grab: '#185FA5', FoodPanda: '#C41230', Oddle: '#3B6D11', OTC: '#BA7517', Deliveroo: '#666' };
-  ['Grab', 'FoodPanda', 'Oddle', 'OTC', 'Deliveroo'].forEach(function(k) {
+  var colorMap = { Grab: '#185FA5', FoodPanda: '#C41230', Oddle: '#3B6D11', OTC: '#BA7517' };
+  ['Grab', 'FoodPanda', 'Oddle', 'OTC'].forEach(function(k) {
     if (dt[k] > 0) {
       labels.push(k + ' ' + (dt[k]/total*100).toFixed(1) + '%');
       data.push(dt[k]);
