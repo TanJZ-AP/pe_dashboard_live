@@ -77,6 +77,10 @@ jobs:
                  - Replace menu.dg, menu.sv, menu.combined, menu.pct arrays so
                    they correspond index-for-index with the new items.
                  - pct[i] = 100 * combined[i] / sum(combined). Round to 1dp.
+                 - Add/replace the unit-quantity arrays (index-aligned with items):
+                     * menu.qty_dg: integer units sold at Duo Galleria
+                     * menu.qty_sv: integer units sold at Star Vista
+                     * menu.qty: qty_dg[i] + qty_sv[i]
                  - Preserve menu.categories (UI falls back to it if items missing).
               6. Touch NOTHING else in that week's entry — no changes to daily,
                  dita, delivery, dayparts, turns, payments, kpi, highlights.
