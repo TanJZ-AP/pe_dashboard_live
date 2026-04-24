@@ -123,9 +123,21 @@ jobs:
                 Populate menu.items as an array of up to 10 item names
                 (e.g., "Margherita Pizza", "Spaghetti Vongole"), sorted by
                 menu.combined descending. Keep menu.dg / menu.sv / menu.combined
-                / menu.pct aligned index-for-index with menu.items. The
-                menu.categories field is deprecated; do not emit it for new
+                / menu.pct aligned index-for-index with menu.items.
+                Also populate the corresponding unit-quantity arrays from the
+                menuItemReport xlsx files:
+                  - menu.qty_dg: integer units sold at Duo Galleria
+                  - menu.qty_sv: integer units sold at Star Vista
+                  - menu.qty: qty_dg[i] + qty_sv[i]
+                All qty arrays must be index-aligned with menu.items.
+                The menu.categories field is deprecated; do not emit it for new
                 weeks.
+              - Do NOT populate w.turns.dg_turns or w.turns.sv_turns — those are
+                derived client-side from w.turns.dg_covers / DG_SEATS and
+                sv_covers / SV_SEATS (constants in index.html: DG=100, SV=88).
+                Keep turns.dg_covers and turns.sv_covers accurate; the turns
+                arrays may be omitted or left at any value (UI ignores them).
+                Similarly kpi.avg_turns_dg / avg_turns_sv are ignored.
 
             Keep changes minimal and idempotent.
           allowed_tools: Read,Edit,Bash(python3:*)

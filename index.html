@@ -190,10 +190,10 @@
 <div id="pane-menu" class="pane">
   <div class="tab-label">Top Menu Items</div>
   <div class="sec" id="menu-sec1"></div>
-  <table class="t"><thead><tr><th>#</th><th>Item</th><th>DG</th><th>SV</th><th>Combined</th><th>% of net</th></tr></thead>
+  <table class="t"><thead><tr><th>#</th><th>Item</th><th class="dg">DG Qty</th><th class="dg">DG $</th><th class="sv">SV Qty</th><th class="sv">SV $</th><th>Total Qty</th><th>Total $</th><th>% of $</th></tr></thead>
   <tbody id="menu-tbody"></tbody></table>
   <div class="sec" style="margin-top:16px" id="menu-sec2"></div>
-  <table class="t"><thead><tr><th>#</th><th>Item</th><th>DG</th><th>SV</th><th>Combined</th><th>% of net</th></tr></thead>
+  <table class="t"><thead><tr><th>#</th><th>Item</th><th class="dg">DG Qty</th><th class="dg">DG $</th><th class="sv">SV Qty</th><th class="sv">SV $</th><th>Total Qty</th><th>Total $</th><th>% of $</th></tr></thead>
   <tbody id="menu-cmp-tbody"></tbody></table>
   <div class="notice" id="menu-notice"></div>
 </div>
@@ -205,6 +205,8 @@ var WEEKS = [{"key": 0,"label": "20\u201326 Apr 2026","monday": "2026-04-20","pa
 
 var CH = {};
 var activePane = 'daily';
+var DG_SEATS = 100;
+var SV_SEATS = 88;
 
 function $(id) { return document.getElementById(id); }
 function num(v) { return v.toLocaleString('en-US'); }
@@ -351,15 +353,14 @@ function renderKH(w, c) {
   cards += '<div class="kc"><div class="kl">SV Revenue</div><div class="kv">' + dol(k.total_sv) + '</div></div>';
   cards += '<div class="kc"><div class="kl">DI net sales</div><div class="kv">' + dol(k.total_di) + '</div><div class="ks">' + pct(k.di_pct) + ' of net</div></div>';
   cards += '<div class="kc"><div class="kl">TA net sales</div><div class="kv">' + dol(k.total_ta) + '</div><div class="ks">' + pct(100 - k.di_pct) + '</div></div>';
-  cards += '<div class="kc"><div class="kl">DI covers</div><div class="kv">' + num(k.total_covers_dg + k.total_covers_sv) + '</div><div class="ks">DG ' + k.total_covers_dg + ' (' + k.avg_turns_dg.toFixed(2) + '\u00d7) · SV ' + k.total_covers_sv + ' (' + k.avg_turns_sv.toFixed(2) + '\u00d7)</div></div>';
+  var dgAvgTurn = nDays > 0 ? k.total_covers_dg / (DG_SEATS * nDays) : 0;
+  var svAvgTurn = nDays > 0 ? k.total_covers_sv / (SV_SEATS * nDays) : 0;
+  cards += '<div class="kc"><div class="kl">DI covers</div><div class="kv">' + num(k.total_covers_dg + k.total_covers_sv) + '</div><div class="ks">DG ' + k.total_covers_dg + ' (' + dgAvgTurn.toFixed(2) + '\u00d7) · SV ' + k.total_covers_sv + ' (' + svAvgTurn.toFixed(2) + '\u00d7)</div></div>';
   var totCovers = k.total_covers_dg + k.total_covers_sv;
   var aspHead = totCovers > 0 ? Math.round(k.total_di / totCovers) : 0;
   cards += '<div class="kc"><div class="kl">Avg spend/head</div><div class="kv">' + dol(aspHead) + '</div><div class="ks">DI net sales ÷ DI covers</div></div>';
-  var combTurns = 0;
-  if (k.avg_turns_dg > 0 && k.avg_turns_sv > 0 && totCovers > 0) {
-    combTurns = totCovers / (k.total_covers_dg / k.avg_turns_dg + k.total_covers_sv / k.avg_turns_sv);
-  }
-  cards += '<div class="kc"><div class="kl">Avg table turns</div><div class="kv">' + combTurns.toFixed(2) + '\u00d7</div><div class="ks">weighted DG + SV, per day</div></div>';
+  var combTurns = nDays > 0 ? totCovers / ((DG_SEATS + SV_SEATS) * nDays) : 0;
+  cards += '<div class="kc"><div class="kl">Avg table turns</div><div class="kv">' + combTurns.toFixed(2) + '\u00d7</div><div class="ks">combined DG + SV, per day</div></div>';
   $('kh-cards').innerHTML = cards;
 
   if (c) {
@@ -377,11 +378,8 @@ function renderKH(w, c) {
     var cTotCovers = ck.total_covers_dg + ck.total_covers_sv;
     var cAspHead = cTotCovers > 0 ? Math.round(ck.total_di / cTotCovers) : 0;
     cCards += '<div class="kc"><div class="kl">Avg spend/head</div><div class="kv">' + dol(cAspHead) + '</div><div class="ks">DI net sales ÷ DI covers</div></div>';
-    var cCombTurns = 0;
-    if (ck.avg_turns_dg > 0 && ck.avg_turns_sv > 0 && cTotCovers > 0) {
-      cCombTurns = cTotCovers / (ck.total_covers_dg / ck.avg_turns_dg + ck.total_covers_sv / ck.avg_turns_sv);
-    }
-    cCards += '<div class="kc"><div class="kl">Avg table turns</div><div class="kv">' + cCombTurns.toFixed(2) + '\u00d7</div><div class="ks">weighted DG + SV, per day</div></div>';
+    var cCombTurns = c.num_days > 0 ? cTotCovers / ((DG_SEATS + SV_SEATS) * c.num_days) : 0;
+    cCards += '<div class="kc"><div class="kl">Avg table turns</div><div class="kv">' + cCombTurns.toFixed(2) + '\u00d7</div><div class="ks">combined DG + SV, per day</div></div>';
     $('kh-cmp-cards').innerHTML = cCards;
     $('kh-cmp-cards').style.display = '';
   } else {
@@ -518,7 +516,7 @@ function buildDPTable(dp, nDays) {
 
 function renderTurns(w, c) {
   var t = w.turns;
-  $('turns-sec1').textContent = 'Table turns (DG capacity 100 · SV capacity 88) \u2014 ' + w.label;
+  $('turns-sec1').textContent = 'Table turns (DG capacity ' + DG_SEATS + ' · SV capacity ' + SV_SEATS + ') \u2014 ' + w.label;
   $('turns-tbody').innerHTML = buildTurnsTable(t, w.num_days);
   if (c) {
     $('turns-sec2').textContent = 'Compare: ' + c.label;
@@ -538,8 +536,8 @@ function buildTurnsTable(t, nDays) {
     if (i < t.dates.length) {
       html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '>';
       html += '<td>' + t.dates[i].slice(5) + '</td><td>' + dn + '</td>';
-      html += '<td class="dg">' + t.dg_covers[i] + '</td><td class="dg">' + t.dg_turns[i].toFixed(2) + '\u00d7</td>';
-      html += '<td class="sv">' + t.sv_covers[i] + '</td><td class="sv">' + t.sv_turns[i].toFixed(2) + '\u00d7</td>';
+      html += '<td class="dg">' + t.dg_covers[i] + '</td><td class="dg">' + (t.dg_covers[i]/DG_SEATS).toFixed(2) + '\u00d7</td>';
+      html += '<td class="sv">' + t.sv_covers[i] + '</td><td class="sv">' + (t.sv_covers[i]/SV_SEATS).toFixed(2) + '\u00d7</td>';
       html += '</tr>';
     } else {
       html += '<tr' + (rc ? ' class="'+rc+'"' : '') + '><td class="pend">' + dn + '</td><td class="pend">' + dn + '</td>' + pendCells(4) + '</tr>';
@@ -550,8 +548,8 @@ function buildTurnsTable(t, nDays) {
   var nD = t.dates.length;
   var totLabel = nD === 7 ? '7-day avg' : dayNames[0] + (nD > 1 ? '–' + dayNames[nD-1] : '') + ' so far';
   html += '<tr class="tot"><td></td><td>' + totLabel + '</td>';
-  html += '<td class="dg">' + tdc + ' total</td><td class="dg">' + (nD > 0 ? (tdc/(nD*100)).toFixed(2) : '0.00') + '\u00d7 avg</td>';
-  html += '<td class="sv">' + tsc + ' total</td><td class="sv">' + (nD > 0 ? (tsc/(nD*88)).toFixed(2) : '0.00') + '\u00d7 avg</td>';
+  html += '<td class="dg">' + tdc + ' total</td><td class="dg">' + (nD > 0 ? (tdc/(nD*DG_SEATS)).toFixed(2) : '0.00') + '\u00d7 avg</td>';
+  html += '<td class="sv">' + tsc + ' total</td><td class="sv">' + (nD > 0 ? (tsc/(nD*SV_SEATS)).toFixed(2) : '0.00') + '\u00d7 avg</td>';
   html += '</tr>';
   return html;
 }
@@ -625,22 +623,35 @@ function renderMenu(w, c) {
 function buildMenuTable(m) {
   var labels = m.items || m.categories;
   var n = Math.min(10, labels.length);
+  var qd = m.qty_dg || [], qs = m.qty_sv || [], qc = m.qty || [];
+  var hasQty = qc.length > 0 || qd.length > 0 || qs.length > 0;
+  var nq = function(v) { return (typeof v === 'number') ? num(v) : '\u2014'; };
   var html = '';
   for (var i = 0; i < n; i++) {
     html += '<tr>';
     html += '<td>' + (i + 1) + '</td><td>' + labels[i] + '</td>';
+    html += '<td class="dg">' + nq(qd[i]) + '</td>';
     html += '<td class="dg">' + num(Math.round(m.dg[i])) + '</td>';
+    html += '<td class="sv">' + nq(qs[i]) + '</td>';
     html += '<td class="sv">' + (m.sv[i] > 0 ? num(Math.round(m.sv[i])) : '\u2014') + '</td>';
+    html += '<td>' + nq(qc[i]) + '</td>';
     html += '<td><strong>' + num(Math.round(m.combined[i])) + '</strong></td>';
     html += '<td>' + pct(m.pct[i]) + '</td>';
     html += '</tr>';
   }
-  var tdg = 0, tsv = 0, tc = 0;
-  for (var j = 0; j < n; j++) { tdg += m.dg[j]; tsv += m.sv[j]; tc += m.combined[j]; }
+  var tdg = 0, tsv = 0, tc = 0, tqd = 0, tqs = 0, tqc = 0;
+  for (var j = 0; j < n; j++) {
+    tdg += m.dg[j]; tsv += m.sv[j]; tc += m.combined[j];
+    tqd += qd[j] || 0; tqs += qs[j] || 0; tqc += qc[j] || 0;
+  }
   html += '<tr class="tot"><td></td><td>Top ' + n + ' total</td>';
+  html += '<td class="dg">' + (hasQty ? num(tqd) : '\u2014') + '</td>';
   html += '<td class="dg">' + num(Math.round(tdg)) + '</td>';
+  html += '<td class="sv">' + (hasQty ? num(tqs) : '\u2014') + '</td>';
   html += '<td class="sv">' + num(Math.round(tsv)) + '</td>';
-  html += '<td>' + num(Math.round(tc)) + '</td><td>\u2014</td></tr>';
+  html += '<td>' + (hasQty ? num(tqc) : '\u2014') + '</td>';
+  html += '<td>' + num(Math.round(tc)) + '</td>';
+  html += '<td>\u2014</td></tr>';
   return html;
 }
 
