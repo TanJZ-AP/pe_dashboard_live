@@ -76,11 +76,21 @@ jobs:
                    sorted descending by combined revenue.
                  - Replace menu.dg, menu.sv, menu.combined, menu.pct arrays so
                    they correspond index-for-index with the new items.
-                 - pct[i] = 100 * combined[i] / sum(combined). Round to 1dp.
+                 - pct[i] = 100 * combined[i] / total.combined. Round to 1dp.
                  - Add/replace the unit-quantity arrays (index-aligned with items):
                      * menu.qty_dg: integer units sold at Duo Galleria
                      * menu.qty_sv: integer units sold at Star Vista
                      * menu.qty: qty_dg[i] + qty_sv[i]
+                 - Add/replace menu.total — aggregates across ALL menu items
+                   (not just the top 10), so the UI can compute the Others row:
+                     menu.total = {
+                       "dg":       <sum of net sales of all items at DG>,
+                       "sv":       <sum of net sales of all items at SV>,
+                       "combined": dg + sv,
+                       "qty_dg":   <integer sum of all units sold at DG>,
+                       "qty_sv":   <integer sum of all units sold at SV>,
+                       "qty":      qty_dg + qty_sv
+                     }
                  - Preserve menu.categories (UI falls back to it if items missing).
               6. Touch NOTHING else in that week's entry — no changes to daily,
                  dita, delivery, dayparts, turns, payments, kpi, highlights.

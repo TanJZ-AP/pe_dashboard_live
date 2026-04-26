@@ -625,8 +625,10 @@ function buildMenuTable(m) {
   var n = Math.min(10, labels.length);
   var qd = m.qty_dg || [], qs = m.qty_sv || [], qc = m.qty || [];
   var hasQty = qc.length > 0 || qd.length > 0 || qs.length > 0;
+  var total = m.total;
   var nq = function(v) { return (typeof v === 'number') ? num(v) : '\u2014'; };
   var html = '';
+  var topDg = 0, topSv = 0, topC = 0, topQd = 0, topQs = 0, topQc = 0;
   for (var i = 0; i < n; i++) {
     html += '<tr>';
     html += '<td>' + (i + 1) + '</td><td>' + labels[i] + '</td>';
@@ -638,20 +640,44 @@ function buildMenuTable(m) {
     html += '<td><strong>' + num(Math.round(m.combined[i])) + '</strong></td>';
     html += '<td>' + pct(m.pct[i]) + '</td>';
     html += '</tr>';
+    topDg += m.dg[i] || 0; topSv += m.sv[i] || 0; topC += m.combined[i] || 0;
+    topQd += qd[i] || 0; topQs += qs[i] || 0; topQc += qc[i] || 0;
   }
-  var tdg = 0, tsv = 0, tc = 0, tqd = 0, tqs = 0, tqc = 0;
-  for (var j = 0; j < n; j++) {
-    tdg += m.dg[j]; tsv += m.sv[j]; tc += m.combined[j];
-    tqd += qd[j] || 0; tqs += qs[j] || 0; tqc += qc[j] || 0;
+  if (total && typeof total.combined === 'number' && total.combined > 0) {
+    var hasTotalQty = typeof total.qty === 'number' || typeof total.qty_dg === 'number' || typeof total.qty_sv === 'number';
+    var othDg = (total.dg || 0) - topDg;
+    var othSv = (total.sv || 0) - topSv;
+    var othC = total.combined - topC;
+    var othQd = (total.qty_dg || 0) - topQd;
+    var othQs = (total.qty_sv || 0) - topQs;
+    var othQc = (total.qty || 0) - topQc;
+    var othPct = total.combined > 0 ? othC / total.combined * 100 : 0;
+    html += '<tr><td></td><td><em>Others</em></td>';
+    html += '<td class="dg">' + (hasTotalQty ? num(Math.round(othQd)) : '\u2014') + '</td>';
+    html += '<td class="dg">' + num(Math.round(othDg)) + '</td>';
+    html += '<td class="sv">' + (hasTotalQty ? num(Math.round(othQs)) : '\u2014') + '</td>';
+    html += '<td class="sv">' + num(Math.round(othSv)) + '</td>';
+    html += '<td>' + (hasTotalQty ? num(Math.round(othQc)) : '\u2014') + '</td>';
+    html += '<td>' + num(Math.round(othC)) + '</td>';
+    html += '<td>' + pct(othPct) + '</td></tr>';
+    html += '<tr class="tot"><td></td><td>All menu items</td>';
+    html += '<td class="dg">' + (hasTotalQty && typeof total.qty_dg === 'number' ? num(total.qty_dg) : '\u2014') + '</td>';
+    html += '<td class="dg">' + num(Math.round(total.dg || 0)) + '</td>';
+    html += '<td class="sv">' + (hasTotalQty && typeof total.qty_sv === 'number' ? num(total.qty_sv) : '\u2014') + '</td>';
+    html += '<td class="sv">' + num(Math.round(total.sv || 0)) + '</td>';
+    html += '<td>' + (hasTotalQty && typeof total.qty === 'number' ? num(total.qty) : '\u2014') + '</td>';
+    html += '<td><strong>' + num(Math.round(total.combined)) + '</strong></td>';
+    html += '<td>100.0%</td></tr>';
+  } else {
+    html += '<tr class="tot"><td></td><td>Top ' + n + ' total</td>';
+    html += '<td class="dg">' + (hasQty ? num(topQd) : '\u2014') + '</td>';
+    html += '<td class="dg">' + num(Math.round(topDg)) + '</td>';
+    html += '<td class="sv">' + (hasQty ? num(topQs) : '\u2014') + '</td>';
+    html += '<td class="sv">' + num(Math.round(topSv)) + '</td>';
+    html += '<td>' + (hasQty ? num(topQc) : '\u2014') + '</td>';
+    html += '<td>' + num(Math.round(topC)) + '</td>';
+    html += '<td>\u2014</td></tr>';
   }
-  html += '<tr class="tot"><td></td><td>Top ' + n + ' total</td>';
-  html += '<td class="dg">' + (hasQty ? num(tqd) : '\u2014') + '</td>';
-  html += '<td class="dg">' + num(Math.round(tdg)) + '</td>';
-  html += '<td class="sv">' + (hasQty ? num(tqs) : '\u2014') + '</td>';
-  html += '<td class="sv">' + num(Math.round(tsv)) + '</td>';
-  html += '<td>' + (hasQty ? num(tqc) : '\u2014') + '</td>';
-  html += '<td>' + num(Math.round(tc)) + '</td>';
-  html += '<td>\u2014</td></tr>';
   return html;
 }
 
