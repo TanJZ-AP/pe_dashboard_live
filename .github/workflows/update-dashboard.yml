@@ -130,6 +130,17 @@ jobs:
                   - menu.qty_sv: integer units sold at Star Vista
                   - menu.qty: qty_dg[i] + qty_sv[i]
                 All qty arrays must be index-aligned with menu.items.
+                Also populate menu.total — an object aggregating ALL menu
+                items (not just the top 10), so the UI can show an "Others"
+                row that ties back to total net sales:
+                  menu.total = {
+                    "dg":      <sum of net sales of all items at DG>,
+                    "sv":      <sum of net sales of all items at SV>,
+                    "combined": dg + sv,
+                    "qty_dg":  <integer sum of all units sold at DG>,
+                    "qty_sv":  <integer sum of all units sold at SV>,
+                    "qty":     qty_dg + qty_sv
+                  }
                 The menu.categories field is deprecated; do not emit it for new
                 weeks.
               - Do NOT populate w.turns.dg_turns or w.turns.sv_turns — those are
