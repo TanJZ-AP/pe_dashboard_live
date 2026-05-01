@@ -6,19 +6,19 @@ files + OrderType + WIB DayPartReport) into items_by_date, then sums per view.
 
 Run after pull_latest.py whenever new menuItemReport files arrive.
 """
-import openpyxl, os, re, json
+import openpyxl, os, re, json, sys
 
-KEK_DIR = "/sessions/youthful-peaceful-faraday/mnt/Daily POS Reports"
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))
-UPLOADS = "/sessions/youthful-peaceful-faraday/mnt/uploads"
+sys.path.insert(0, SCRIPTS)
+from _dates import month_weeks
+
+KEK_DIR = os.environ.get('KEK_DIR', "/sessions/youthful-peaceful-faraday/mnt/Daily POS Reports")
+UPLOADS = os.environ.get('KEK_UPLOADS', "/sessions/youthful-peaceful-faraday/mnt/uploads")
 OUTLETS = ['KEK Alexandra', 'KEK Tampines', 'KEK Punggol', 'WOKIN Punggol']
 SHORT = {'KEK Alexandra': 'BM', 'KEK Tampines': 'TP', 'KEK Punggol': 'PG', 'WOKIN Punggol': 'WIB'}
 
-W1_DATES = ["2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05"]
-W2_DATES = ["2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12"]
-W3_DATES = ["2026-04-13","2026-04-14","2026-04-15","2026-04-16","2026-04-17","2026-04-18","2026-04-19"]
-W4_DATES = ["2026-04-20","2026-04-21","2026-04-22","2026-04-23","2026-04-24","2026-04-25","2026-04-26"]
-W5_DATES = ["2026-04-27","2026-04-28","2026-04-29","2026-04-30","2026-05-01","2026-05-02","2026-05-03"]
+_W = month_weeks()
+W1_DATES, W2_DATES, W3_DATES, W4_DATES, W5_DATES = _W['w1'], _W['w2'], _W['w3'], _W['w4'], _W['w5']
 
 def num(v):
     try: return float(v) if v is not None else 0.0

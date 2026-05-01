@@ -13,8 +13,9 @@ full refresh.
 import sys, os, re, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from parse_kek import parse_daily, identify_outlet
+from _dates import period_label
 
-KEK_DIR = "/sessions/youthful-peaceful-faraday/mnt/Daily POS Reports"
+KEK_DIR = os.environ.get('KEK_DIR', "/sessions/youthful-peaceful-faraday/mnt/Daily POS Reports")
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))
 OUTLETS = ['KEK Alexandra', 'KEK Tampines', 'KEK Punggol', 'WOKIN Punggol']
 SHORT = {'KEK Alexandra': 'BM', 'KEK Tampines': 'TP', 'KEK Punggol': 'PG', 'WOKIN Punggol': 'WIB'}
@@ -55,7 +56,7 @@ all_dates = sorted(set(d for o in DAILY for d in DAILY[o].keys()))
 daily_by_date = {date: {SHORT[o]: DAILY.get(o, {}).get(date) for o in OUTLETS} for date in all_dates}
 dash['all_dates'] = all_dates
 dash['daily'] = daily_by_date
-dash['period_label'] = f'April 2026 MTD (through {all_dates[-1][-2:]} Apr)'
+dash['period_label'] = period_label(all_dates[-1])
 with open(f'{SCRIPTS}/kek_dashboard_data.json', 'w') as f:
     json.dump(dash, f, indent=2, ensure_ascii=False)
 

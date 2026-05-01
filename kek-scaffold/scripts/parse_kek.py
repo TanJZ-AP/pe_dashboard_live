@@ -5,7 +5,7 @@ import re
 import json
 from collections import defaultdict
 
-KEK_DIR = "/sessions/youthful-peaceful-faraday/mnt/Daily POS Reports"
+KEK_DIR = os.environ.get('KEK_DIR', "/sessions/youthful-peaceful-faraday/mnt/Daily POS Reports")
 
 OUTLETS = {
     'Alexandra': 'KEK Alexandra',

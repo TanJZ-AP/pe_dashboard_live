@@ -10,7 +10,10 @@ Usage: python3 refresh_dashboard.py
 import subprocess, sys, os, re, json
 
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))
-HTML_PATH = "/sessions/youthful-peaceful-faraday/mnt/Keng Eng Kee Seafood/KEK Dashboard.html"
+HTML_PATH = os.environ.get(
+    'KEK_HTML',
+    "/sessions/youthful-peaceful-faraday/mnt/Keng Eng Kee Seafood/KEK Dashboard.html",
+)
 
 print("Step 1: pull latest dailyReports...")
 subprocess.run([sys.executable, f"{SCRIPTS}/pull_latest.py"], check=True)
