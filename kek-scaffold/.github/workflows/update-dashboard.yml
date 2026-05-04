@@ -20,6 +20,10 @@ jobs:
       KEK_DIR: ${{ github.workspace }}/pos_inbox
       KEK_UPLOADS: ${{ github.workspace }}/historical
       KEK_HTML: ${{ github.workspace }}/index.html
+      # Pin the report month via repo variable (Settings -> Secrets and variables ->
+      # Actions -> Variables tab). Set to e.g. "2026-04" to freeze the dashboard
+      # on April. Leave unset to auto-anchor to the latest-data month.
+      KEK_REPORT_MONTH: ${{ vars.KEK_REPORT_MONTH }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
