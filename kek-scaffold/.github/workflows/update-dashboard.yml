@@ -73,26 +73,13 @@ jobs:
             fi
           fi
 
-      - name: Skip if HEAD already covers this date
-        if: steps.fetch.outputs.skip != 'true'
-        id: gate
-        run: |
-          set -e
-          date="${{ steps.fetch.outputs.report_date }}"
-          if git log -1 --pretty=%s | grep -q "$date"; then
-            echo "HEAD commit already covers $date. Skipping."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Run KEK pipeline (parse → build views → swap HTML)
-        if: steps.fetch.outputs.skip != 'true' && steps.gate.outputs.skip != 'true'
+        if: steps.fetch.outputs.skip != 'true'
         run: python scripts/refresh_dashboard.py
 
       - name: Commit and push
         id: push
-        if: steps.fetch.outputs.skip != 'true' && steps.gate.outputs.skip != 'true'
+        if: steps.fetch.outputs.skip != 'true'
         run: |
           set -e
           date="${{ steps.fetch.outputs.report_date }}"
