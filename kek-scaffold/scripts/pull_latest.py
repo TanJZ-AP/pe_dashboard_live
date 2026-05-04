@@ -56,7 +56,7 @@ all_dates = sorted(set(d for o in DAILY for d in DAILY[o].keys()))
 daily_by_date = {date: {SHORT[o]: DAILY.get(o, {}).get(date) for o in OUTLETS} for date in all_dates}
 dash['all_dates'] = all_dates
 dash['daily'] = daily_by_date
-dash['period_label'] = period_label(all_dates[-1])
+dash['period_label'] = period_label(all_dates[-1])  # auto-anchors to latest date's month
 with open(f'{SCRIPTS}/kek_dashboard_data.json', 'w') as f:
     json.dump(dash, f, indent=2, ensure_ascii=False)
 

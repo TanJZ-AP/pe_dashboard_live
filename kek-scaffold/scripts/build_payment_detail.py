@@ -17,7 +17,15 @@ KEK_DIR = os.environ.get('KEK_DIR', "/sessions/youthful-peaceful-faraday/mnt/Dai
 UPLOADS = os.environ.get('KEK_UPLOADS', "/sessions/youthful-peaceful-faraday/mnt/uploads")
 OUTLETS = ['KEK Alexandra', 'KEK Tampines', 'KEK Punggol', 'WOKIN Punggol']
 
-_W = month_weeks()
+def _latest_data_date():
+    try:
+        with open(f'{SCRIPTS}/kek_dashboard_data.json') as f:
+            dates = json.load(f).get('all_dates') or []
+        return dates[-1] if dates else None
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+_W = month_weeks(latest_date_iso=_latest_data_date())
 W1_DATES, W2_DATES, W3_DATES, W4_DATES, W5_DATES = _W['w1'], _W['w2'], _W['w3'], _W['w4'], _W['w5']
 
 def num(v):

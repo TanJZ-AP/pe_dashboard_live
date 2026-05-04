@@ -3,8 +3,8 @@ name: Update KEK dashboard
 on:
   workflow_dispatch:
   schedule:
-    # 22:45 SGT = 14:45 UTC, ~1h45m after POS files typically arrive
-    - cron: '45 14 * * *'
+    # 02:00 SGT = 18:00 UTC (prior day) — runs nightly after midnight Singapore
+    - cron: '0 18 * * *'
 
 permissions:
   contents: write
